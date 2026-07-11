@@ -6,8 +6,10 @@
     <title>الدحيح في اللغة العربية - أ. محمد العربي</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Alpine.js -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Alpine.js - تم إضافة defer هنا وهي سر حل المشكلة -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -346,15 +348,27 @@
     </main>
 
     <script>
+        // دالة حماية لقراءة البيانات من المتصفح بدون مشاكل
+        function safeLoad(key, defaultVal) {
+            try {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : defaultVal;
+            } catch (error) {
+                console.error("خطأ في قراءة البيانات:", error);
+                return defaultVal;
+            }
+        }
+
         document.addEventListener('alpine:init', () => {
             Alpine.data('appData', () => ({
                 activeView: 'dashboard',
                 currentDate: new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
                 
-                groups: JSON.parse(localStorage.getItem('alDaheeh_groups')) || [],
-                students: JSON.parse(localStorage.getItem('alDaheeh_students')) || [],
-                sessions: JSON.parse(localStorage.getItem('alDaheeh_sessions')) || [],
-                activeSession: JSON.parse(localStorage.getItem('alDaheeh_activeSession')) || null,
+                // استخدام دالة الحماية هنا 
+                groups: safeLoad('alDaheeh_groups', []),
+                students: safeLoad('alDaheeh_students', []),
+                sessions: safeLoad('alDaheeh_sessions', []),
+                activeSession: safeLoad('alDaheeh_activeSession', null),
                 
                 newGroup: { name: '', price: '' },
                 newStudent: { name: '', groupId: '' },
@@ -444,7 +458,6 @@
                 },
 
                 addStudent() {
-                    // توليد كود فريد من 5 أرقام
                     let code;
                     do { code = Math.floor(10000 + Math.random() * 90000).toString(); } 
                     while (this.students.find(s => s.code === code));
@@ -510,7 +523,6 @@
                                     this.showScanFeedback('error', 'مسجل حضوره بالفعل!', student.name);
                                 } else {
                                     this.activeSession.records[recordIndex].attended = true;
-                                    // تسجيل المصروفات تلقائياً كسعر المجموعة الافتراضي بمجرد الحضور (يمكنك تعديله يدويا)
                                     this.activeSession.records[recordIndex].paidAmount = this.getGroupPrice(this.activeSession.groupId);
                                     this.showScanFeedback('success', 'تم تسجيل الحضور', student.name);
                                 }
@@ -521,7 +533,6 @@
                     }
 
                     this.scanInput = '';
-                    // الإبقاء على التركيز في خانة الإسكانر
                     setTimeout(() => this.$refs.scannerInput?.focus(), 10);
                 },
 
