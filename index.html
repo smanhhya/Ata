@@ -173,7 +173,8 @@
                                         <option value="">اختر المجموعة...</option>
                                         <template x-for="g in groups" :key="g.id">
                                             <option :value="g.id" x-text="g.name"></option>
-                                        </select>
+                                        </template>
+                                    </select>
                                 </div>
                                 <button type="submit" class="w-full bg-primary text-white font-bold p-3 rounded-xl hover:bg-blue-700 text-sm">توليد الكود والحفظ</button>
                             </form>
@@ -526,4 +527,5 @@
     </script>
 </body>
 </html>
+
 
