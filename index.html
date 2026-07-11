@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>نظام الدحيح - أ. محمد العربي</title>
+    <title>الدحيح في اللغة العربية - أ. محمد العربي</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Alpine.js for State Management (Like React but for HTML) -->
+    <!-- Alpine.js -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
@@ -24,13 +24,10 @@
         }
     </script>
     <style>
-        /* Custom Scrollbar for better look */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* Mobile fixes */
         @media (max-width: 768px) {
             .mobile-bottom-nav { padding-bottom: env(safe-area-inset-bottom); }
         }
@@ -41,15 +38,14 @@
       x-data="appData()" 
       x-init="initApp()">
 
-    <!-- Sidebar (Desktop) / Bottom Nav (Mobile) -->
+    <!-- Sidebar -->
     <aside class="bg-dark text-slate-300 w-full md:w-64 flex flex-row md:flex-col shrink-0 z-50 fixed bottom-0 md:relative md:bottom-auto order-last md:order-first shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none mobile-bottom-nav">
-        <!-- Brand (Hidden on Mobile) -->
         <div class="hidden md:block p-6 border-b border-slate-800 text-center">
-            <h1 class="text-2xl font-black text-white tracking-tight">الدحيح</h1>
-            <p class="text-blue-400 text-sm font-medium mt-1">أ. محمد العربي</p>
+            <h1 class="text-3xl font-black text-white tracking-tight">الدحيح</h1>
+            <p class="text-blue-400 text-sm font-bold mt-2">في اللغة العربية</p>
+            <p class="text-slate-400 text-xs mt-1">أ. محمد العربي</p>
         </div>
 
-        <!-- Navigation -->
         <nav class="flex-1 flex md:flex-col p-2 md:p-4 gap-1 w-full justify-around md:justify-start">
             <button @click="activeView = 'dashboard'" :class="activeView === 'dashboard' ? 'bg-primary text-white' : 'hover:bg-slate-800'" class="flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:px-4 md:py-3 rounded-xl font-bold transition-all w-full text-xs md:text-base">
                 <i class="fas fa-chart-line text-lg"></i> <span class="hidden md:inline">لوحة التحكم</span><span class="md:hidden">الرئيسية</span>
@@ -61,31 +57,28 @@
 
             <button @click="activeView = 'scanner'" :class="activeView === 'scanner' ? 'bg-primary text-white' : 'hover:bg-slate-800'" class="relative flex flex-col md:flex-row items-center justify-center md:justify-between gap-1 md:gap-3 p-2 md:px-4 md:py-3 rounded-xl font-bold transition-all w-full text-xs md:text-base">
                 <div class="flex flex-col md:flex-row items-center gap-1 md:gap-3">
-                    <i class="fas fa-qrcode text-lg"></i> <span class="hidden md:inline">شاشة الحصة</span><span class="md:hidden">الإسكانر</span>
+                    <i class="fas fa-qrcode text-lg"></i> <span class="hidden md:inline">شاشة الحضور</span><span class="md:hidden">الإسكانر</span>
                 </div>
                 <span x-show="activeSession" x-cloak class="absolute top-2 right-2 md:relative md:top-auto md:right-auto w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
             </button>
         </nav>
     </aside>
 
-    <!-- Main Content Area -->
+    <!-- Main Content -->
     <main class="flex-1 flex flex-col h-full overflow-hidden pb-16 md:pb-0">
-        <!-- Header -->
         <header class="bg-white border-b border-slate-200 p-4 px-4 md:px-8 flex justify-between items-center shrink-0">
             <h2 class="text-lg md:text-xl font-bold text-slate-800 truncate" x-text="headerTitle()"></h2>
             <div class="text-xs md:text-sm font-bold text-slate-500 bg-slate-100 px-3 py-1 md:px-4 md:py-2 rounded-lg hidden sm:block" x-text="currentDate"></div>
         </header>
 
-        <!-- Scrollable Content Area -->
         <div class="flex-1 overflow-y-auto p-4 md:p-8">
             <div class="max-w-6xl mx-auto">
 
-                <!-- 1. DASHBOARD VIEW -->
+                <!-- 1. DASHBOARD -->
                 <div x-show="activeView === 'dashboard'" x-cloak class="space-y-6">
-                    <!-- Stats Grid -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                         <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100">
-                            <p class="text-slate-500 text-xs md:text-sm mb-1">الطلاب</p>
+                            <p class="text-slate-500 text-xs md:text-sm mb-1">إجمالي الطلاب</p>
                             <h3 class="text-2xl md:text-3xl font-bold" x-text="students.length"></h3>
                         </div>
                         <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100">
@@ -93,33 +86,31 @@
                             <h3 class="text-2xl md:text-3xl font-bold" x-text="groups.length"></h3>
                         </div>
                         <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100">
-                            <p class="text-slate-500 text-xs md:text-sm mb-1">الحصص</p>
+                            <p class="text-slate-500 text-xs md:text-sm mb-1">الحصص السابقة</p>
                             <h3 class="text-2xl md:text-3xl font-bold" x-text="completedSessionsCount()"></h3>
                         </div>
                         <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100">
-                            <p class="text-slate-500 text-xs md:text-sm mb-1">الإيرادات</p>
+                            <p class="text-slate-500 text-xs md:text-sm mb-1">إجمالي الإيرادات</p>
                             <h3 class="text-2xl md:text-3xl font-bold text-green-600" x-text="totalRevenue() + ' ج'"></h3>
                         </div>
                     </div>
 
-                    <!-- Setup Session & History -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Start Session Form -->
+                        <!-- Start Session -->
                         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                             <h2 class="text-lg font-bold mb-4 text-slate-800"><i class="fas fa-play-circle text-primary mr-2"></i> بدء حصة جديدة</h2>
-                            
                             <template x-if="activeSession">
                                 <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-center">
                                     <p class="font-bold text-blue-800 mb-2">هناك حصة قيد التشغيل حالياً!</p>
-                                    <button @click="activeView = 'scanner'" class="bg-primary text-white px-4 py-2 rounded-lg font-bold w-full text-sm">العودة لشاشة الحصة</button>
+                                    <button @click="activeView = 'scanner'" class="bg-primary text-white px-4 py-2 rounded-lg font-bold w-full text-sm">الذهاب لشاشة الحضور (الإسكانر)</button>
                                 </div>
                             </template>
                             
                             <template x-if="!activeSession">
                                 <form @submit.prevent="startSession" class="space-y-3">
                                     <div>
-                                        <label class="block text-xs font-semibold mb-1 text-slate-600">موضوع الحصة</label>
-                                        <input required type="text" x-model="newSession.name" class="w-full p-2.5 bg-slate-50 border rounded-xl outline-none focus:border-primary text-sm" placeholder="مثال: مراجعة النحو" />
+                                        <label class="block text-xs font-semibold mb-1 text-slate-600">اسم/موضوع الحصة</label>
+                                        <input required type="text" x-model="newSession.name" class="w-full p-2.5 bg-slate-50 border rounded-xl outline-none focus:border-primary text-sm" placeholder="مثال: الحصة الأولى - النحو" />
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold mb-1 text-slate-600">المجموعة</label>
@@ -138,14 +129,18 @@
                         </div>
 
                         <!-- Recent Sessions -->
-                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 overflow-y-auto max-h-[300px]">
                             <h2 class="text-lg font-bold mb-4 text-slate-800">سجل الحصص السابقة</h2>
                             <div class="space-y-2">
-                                <template x-for="s in getCompletedSessions().slice(0, 4)" :key="s.id">
+                                <template x-for="s in getCompletedSessions()" :key="s.id">
                                     <div class="p-3 border border-slate-100 bg-slate-50 rounded-xl flex justify-between items-center">
                                         <div>
                                             <h3 class="font-bold text-slate-800 text-sm" x-text="s.name"></h3>
                                             <p class="text-xs text-slate-500" x-text="getGroupName(s.groupId) + ' • ' + s.date"></p>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="text-xs font-bold text-green-600" x-text="getSessionRevenue(s) + ' ج'"></p>
+                                            <p class="text-[10px] text-slate-500" x-text="'حضور: ' + getSessionAttendance(s)"></p>
                                         </div>
                                     </div>
                                 </template>
@@ -155,28 +150,25 @@
                     </div>
                 </div>
 
-                <!-- 2. DATA MANAGEMENT VIEW -->
+                <!-- 2. DATA MANAGEMENT -->
                 <div x-show="activeView === 'data'" x-cloak class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <!-- Add Student -->
                         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                            <h2 class="text-lg font-bold mb-4"><i class="fas fa-user-plus text-primary mr-2"></i> طالب جديد</h2>
+                            <h2 class="text-lg font-bold mb-4"><i class="fas fa-user-plus text-primary mr-2"></i> طالب جديد (توليد كود)</h2>
                             <form @submit.prevent="addStudent" class="space-y-3">
                                 <div>
-                                    <input required type="text" x-model="newStudent.name" class="w-full p-2.5 bg-slate-50 border rounded-xl text-sm" placeholder="الاسم الرباعي" />
+                                    <input required type="text" x-model="newStudent.name" class="w-full p-2.5 bg-slate-50 border rounded-xl text-sm outline-none focus:border-primary" placeholder="اسم الطالب الرباعي" />
                                 </div>
                                 <div>
-                                    <input type="tel" x-model="newStudent.phone" class="w-full p-2.5 bg-slate-50 border rounded-xl text-sm" placeholder="رقم الهاتف" />
-                                </div>
-                                <div>
-                                    <select required x-model="newStudent.groupId" class="w-full p-2.5 bg-slate-50 border rounded-xl text-sm">
-                                        <option value="">اختر المجموعة...</option>
+                                    <select required x-model="newStudent.groupId" class="w-full p-2.5 bg-slate-50 border rounded-xl text-sm outline-none focus:border-primary">
+                                        <option value="">تسكين في مجموعة...</option>
                                         <template x-for="g in groups" :key="g.id">
                                             <option :value="g.id" x-text="g.name"></option>
                                         </template>
                                     </select>
                                 </div>
-                                <button type="submit" class="w-full bg-primary text-white font-bold p-3 rounded-xl hover:bg-blue-700 text-sm">توليد الكود والحفظ</button>
+                                <button type="submit" class="w-full bg-primary text-white font-bold p-3 rounded-xl hover:bg-blue-700 text-sm">حفظ وتوليد الكود</button>
                             </form>
                         </div>
 
@@ -185,10 +177,10 @@
                             <h2 class="text-lg font-bold mb-4"><i class="fas fa-layer-group text-primary mr-2"></i> مجموعة جديدة</h2>
                             <form @submit.prevent="addGroup" class="space-y-3">
                                 <div>
-                                    <input required type="text" x-model="newGroup.name" class="w-full p-2.5 bg-slate-50 border rounded-xl text-sm" placeholder="اسم المجموعة (مثال: أولى ثانوي)" />
+                                    <input required type="text" x-model="newGroup.name" class="w-full p-2.5 bg-slate-50 border rounded-xl text-sm outline-none focus:border-primary" placeholder="اسم المجموعة (مثال: أولى ثانوي - السبت)" />
                                 </div>
                                 <div>
-                                    <input required type="number" x-model="newGroup.price" class="w-full p-2.5 bg-slate-50 border rounded-xl text-sm" placeholder="مصروفات الحصة (ج.م)" />
+                                    <input required type="number" x-model="newGroup.price" class="w-full p-2.5 bg-slate-50 border rounded-xl text-sm outline-none focus:border-primary" placeholder="مصروفات الحصة للطالب (ج.م)" />
                                 </div>
                                 <button type="submit" class="w-full bg-slate-900 text-white font-bold p-3 rounded-xl hover:bg-slate-800 text-sm">حفظ المجموعة</button>
                             </form>
@@ -198,7 +190,7 @@
                     <!-- Students Table -->
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                         <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
-                            <h3 class="font-bold text-sm">قائمة الطلاب</h3>
+                            <h3 class="font-bold text-sm">قائمة الطلاب والأكواد</h3>
                             <span class="text-xs font-bold text-slate-500" x-text="students.length + ' طالب'"></span>
                         </div>
                         <div class="overflow-x-auto">
@@ -206,59 +198,64 @@
                                 <thead class="bg-slate-50 text-slate-500 border-b">
                                     <tr>
                                         <th class="p-3">الكود</th>
-                                        <th class="p-3">الاسم</th>
+                                        <th class="p-3">اسم الطالب</th>
                                         <th class="p-3">المجموعة</th>
+                                        <th class="p-3">الباركود</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <template x-for="s in students" :key="s.id">
                                         <tr class="border-b hover:bg-slate-50">
-                                            <td class="p-3 font-mono font-bold text-primary" x-text="s.code"></td>
+                                            <td class="p-3 font-mono font-bold text-primary text-lg" x-text="s.code"></td>
                                             <td class="p-3 font-bold" x-text="s.name"></td>
                                             <td class="p-3 text-slate-500" x-text="getGroupName(s.groupId)"></td>
+                                            <td class="p-3">
+                                                <button @click="showBarcode(s)" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded-lg font-bold">
+                                                    <i class="fas fa-qrcode"></i> عرض
+                                                </button>
+                                            </td>
                                         </tr>
                                     </template>
-                                    <tr x-show="students.length === 0"><td colspan="3" class="text-center p-4 text-slate-400">لا يوجد طلاب</td></tr>
+                                    <tr x-show="students.length === 0"><td colspan="4" class="text-center p-4 text-slate-400">لا يوجد طلاب مسجلين بعد</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- 3. SCANNER / LIVE SESSION VIEW -->
+                <!-- 3. SCANNER / LIVE SESSION -->
                 <div x-show="activeView === 'scanner'" x-cloak class="h-full flex flex-col space-y-4">
                     
-                    <!-- No Active Session -->
-                    <div x-show="!activeSession" class="flex-1 flex flex-col items-center justify-center text-slate-400 p-8 text-center">
+                    <div x-show="!activeSession" class="flex-1 flex flex-col items-center justify-center text-slate-400 p-8 text-center bg-white rounded-2xl border border-slate-100">
                         <i class="fas fa-qrcode text-6xl mb-4 opacity-50"></i>
-                        <h2 class="text-xl font-bold mb-2">لا توجد حصة جارية</h2>
-                        <p class="text-sm">قم ببدء حصة جديدة من لوحة التحكم لتفعيل الإسكانر</p>
-                        <button @click="activeView = 'dashboard'" class="mt-6 bg-primary text-white px-6 py-2 rounded-lg font-bold text-sm">الذهاب للوحة التحكم</button>
+                        <h2 class="text-xl font-bold mb-2">لا توجد حصة جارية لتسجيل الحضور</h2>
+                        <p class="text-sm">قم ببدء حصة جديدة من لوحة التحكم لتفعيل جهاز الإسكانر</p>
+                        <button @click="activeView = 'dashboard'" class="mt-6 bg-primary text-white px-6 py-2 rounded-lg font-bold text-sm">العودة للوحة التحكم</button>
                     </div>
 
-                    <!-- Active Session -->
                     <template x-if="activeSession">
                         <div class="flex-1 flex flex-col space-y-4">
-                            <!-- Session Info & End Button -->
+                            <!-- Header -->
                             <div class="bg-slate-900 text-white p-4 md:p-6 rounded-2xl shadow-lg flex flex-col md:flex-row justify-between items-center gap-4">
                                 <div class="text-center md:text-right">
                                     <h2 class="text-lg md:text-xl font-bold mb-1 flex items-center justify-center md:justify-start gap-2">
                                         <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
                                         <span x-text="activeSession.name"></span>
                                     </h2>
-                                    <p class="text-blue-300 text-xs md:text-sm" x-text="getGroupName(activeSession.groupId)"></p>
+                                    <p class="text-blue-300 text-sm font-bold" x-text="getGroupName(activeSession.groupId)"></p>
                                 </div>
-                                <button @click="endSession" class="w-full md:w-auto bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded-xl transition-colors text-sm">
-                                    إنهاء الحصة والحفظ
+                                <button @click="endSession" class="w-full md:w-auto bg-red-500 hover:bg-red-600 text-white font-bold px-5 py-3 rounded-xl transition-colors text-sm">
+                                    إنهاء الحصة وحفظ الغياب
                                 </button>
                             </div>
 
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1">
-                                <!-- Scanner Input Area -->
+                                <!-- Scanner -->
                                 <div class="lg:col-span-1 bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200">
                                     <div class="text-center mb-4">
                                         <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-primary rounded-full mb-2"><i class="fas fa-barcode text-xl"></i></div>
                                         <h3 class="font-bold text-slate-800">إسكانر الحضور</h3>
+                                        <p class="text-xs text-slate-500 mt-1">مرر الباركود أو اكتب الكود واضغط Enter</p>
                                     </div>
                                     
                                     <form @submit.prevent="handleScan" class="mb-4">
@@ -266,15 +263,15 @@
                                             type="text" 
                                             x-model="scanInput" 
                                             x-ref="scannerInput"
-                                            placeholder="اكتب كود الطالب..."
-                                            class="w-full text-center text-2xl md:text-3xl font-mono font-bold p-3 md:p-4 bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-primary outline-none"
+                                            @blur="$el.focus()"
+                                            placeholder="جاهز للقراءة..."
+                                            class="w-full text-center text-2xl md:text-3xl font-mono font-bold p-3 md:p-4 bg-slate-50 border-2 border-slate-300 rounded-xl focus:border-primary outline-none focus:bg-white transition-colors"
                                             autocomplete="off"
                                         />
-                                        <!-- Hidden submit button for mobile keyboards -->
                                         <button type="submit" class="hidden">Scan</button>
                                     </form>
 
-                                    <!-- Scan Feedback -->
+                                    <!-- Feedback -->
                                     <div x-show="scanStatus" 
                                          class="p-4 rounded-xl text-center border-2 transition-all"
                                          :class="scanStatus?.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'">
@@ -284,11 +281,11 @@
                                     </div>
                                 </div>
 
-                                <!-- Live Students Table -->
-                                <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden h-[400px] md:h-auto">
+                                <!-- Live Table -->
+                                <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden h-[500px] md:h-auto">
                                     <div class="p-3 md:p-4 bg-slate-50 border-b flex justify-between items-center sticky top-0">
-                                        <h3 class="font-bold text-sm">متابعة الحصة</h3>
-                                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-bold" x-text="'الحضور: ' + getAttendedCount() + ' / ' + activeSession.records.length"></span>
+                                        <h3 class="font-bold text-sm">متابعة الحضور والمصاريف</h3>
+                                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold" x-text="'الحضور: ' + getAttendedCount() + ' من ' + activeSession.records.length"></span>
                                     </div>
                                     
                                     <div class="flex-1 overflow-y-auto">
@@ -296,32 +293,27 @@
                                             <thead class="bg-white sticky top-0 z-10 shadow-sm">
                                                 <tr class="text-slate-500 border-b">
                                                     <th class="p-2 md:p-3">الطالب</th>
-                                                    <th class="p-2 md:p-3">الامتحان</th>
-                                                    <th class="p-2 md:p-3">الدفع</th>
+                                                    <th class="p-2 md:p-3">الحالة</th>
+                                                    <th class="p-2 md:p-3">دفع (مصاريف)</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="divide-y divide-slate-100">
                                                 <template x-for="rec in activeSession.records" :key="rec.studentId">
-                                                    <tr :class="rec.attended ? 'bg-green-50/50' : ''">
+                                                    <tr :class="rec.attended ? 'bg-green-50/40' : ''">
                                                         <td class="p-2 md:p-3">
-                                                            <div class="font-bold truncate max-w-[100px] md:max-w-none" x-text="getStudentName(rec.studentId)"></div>
-                                                            <div class="text-[10px] font-mono mt-0.5" :class="rec.attended ? 'text-green-600' : 'text-slate-400'" x-text="rec.attended ? 'حاضر' : 'غائب'"></div>
+                                                            <div class="font-bold" x-text="getStudentName(rec.studentId)"></div>
+                                                            <div class="text-[10px] font-mono mt-0.5 text-slate-400" x-text="getStudentCode(rec.studentId)"></div>
+                                                        </td>
+                                                        <td class="p-2 md:p-3">
+                                                            <span x-show="rec.attended" class="text-green-600 font-bold bg-green-100 px-2 py-1 rounded text-[10px]">حاضر</span>
+                                                            <span x-show="!rec.attended" class="text-red-500 font-bold bg-red-50 px-2 py-1 rounded text-[10px]">غائب</span>
                                                         </td>
                                                         <td class="p-2 md:p-3">
                                                             <input type="number" 
-                                                                x-model="rec.examScore" 
+                                                                x-model="rec.paidAmount" 
                                                                 :disabled="!rec.attended"
-                                                                class="w-12 md:w-16 p-1 border text-center rounded bg-white disabled:bg-slate-100" 
-                                                                placeholder="-" />
-                                                        </td>
-                                                        <td class="p-2 md:p-3">
-                                                            <div class="flex items-center gap-1">
-                                                                <input type="number" 
-                                                                    x-model="rec.paidAmount" 
-                                                                    :disabled="!rec.attended"
-                                                                    class="w-14 md:w-16 p-1 border text-center rounded bg-white disabled:bg-slate-100" 
-                                                                    :placeholder="getGroupPrice(activeSession.groupId)" />
-                                                            </div>
+                                                                class="w-20 p-2 border border-slate-200 text-center rounded-lg bg-white disabled:bg-slate-50 disabled:text-transparent outline-none focus:border-primary font-bold" 
+                                                                :placeholder="getGroupPrice(activeSession.groupId) + ' ج'" />
                                                         </td>
                                                     </tr>
                                                 </template>
@@ -336,42 +328,50 @@
 
             </div>
         </div>
+        
+        <!-- Barcode Modal -->
+        <div x-show="barcodeModal.show" class="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4" x-cloak>
+            <div @click.away="barcodeModal.show = false" class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-xl">
+                <h3 class="font-bold text-lg mb-1" x-text="barcodeModal.studentName"></h3>
+                <p class="text-sm text-slate-500 mb-4" x-text="barcodeModal.groupName"></p>
+                <div class="bg-slate-50 p-4 rounded-xl flex justify-center mb-4">
+                    <!-- Using QR code API for guaranteed scannability -->
+                    <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + barcodeModal.code" class="w-32 h-32" alt="QR Code" />
+                </div>
+                <p class="font-mono font-black text-2xl tracking-widest mb-6" x-text="barcodeModal.code"></p>
+                <button @click="barcodeModal.show = false" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl">إغلاق</button>
+            </div>
+        </div>
+
     </main>
 
-    <!-- App Logic (Alpine.js) -->
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('appData', () => ({
-                // View State
                 activeView: 'dashboard',
                 currentDate: new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
                 
-                // Data (Loaded from localStorage or Defaults)
-                groups: JSON.parse(localStorage.getItem('alDaheeh_groups')) || [
-                    { id: 'G1', name: 'أولى ثانوي - سبت وثلاثاء', price: 100 }
-                ],
+                groups: JSON.parse(localStorage.getItem('alDaheeh_groups')) || [],
                 students: JSON.parse(localStorage.getItem('alDaheeh_students')) || [],
                 sessions: JSON.parse(localStorage.getItem('alDaheeh_sessions')) || [],
                 activeSession: JSON.parse(localStorage.getItem('alDaheeh_activeSession')) || null,
                 
-                // Form States
                 newGroup: { name: '', price: '' },
-                newStudent: { name: '', phone: '', groupId: '' },
+                newStudent: { name: '', groupId: '' },
                 newSession: { name: '', groupId: '' },
                 
-                // Scanner State
                 scanInput: '',
                 scanStatus: null,
                 scanTimeout: null,
 
+                barcodeModal: { show: false, code: '', studentName: '', groupName: '' },
+
                 initApp() {
-                    // Watch for data changes and save to LocalStorage automatically
                     this.$watch('groups', val => localStorage.setItem('alDaheeh_groups', JSON.stringify(val)));
                     this.$watch('students', val => localStorage.setItem('alDaheeh_students', JSON.stringify(val)));
                     this.$watch('sessions', val => localStorage.setItem('alDaheeh_sessions', JSON.stringify(val)));
                     this.$watch('activeSession', val => {
                         localStorage.setItem('alDaheeh_activeSession', JSON.stringify(val));
-                        // Auto focus scanner when session is active
                         if(val && this.activeView === 'scanner') {
                             setTimeout(() => this.$refs.scannerInput?.focus(), 100);
                         }
@@ -386,12 +386,11 @@
 
                 headerTitle() {
                     if (this.activeView === 'dashboard') return 'نظرة عامة على النظام';
-                    if (this.activeView === 'data') return 'إدارة البيانات الأساسية';
-                    if (this.activeView === 'scanner') return 'نظام المتابعة اللحظي';
+                    if (this.activeView === 'data') return 'إدارة الطلاب والمجموعات';
+                    if (this.activeView === 'scanner') return 'تسجيل الحضور والمصاريف';
                     return '';
                 },
 
-                // --- Helpers ---
                 getGroupName(id) {
                     const group = this.groups.find(g => g.id === id);
                     return group ? group.name : 'مجموعة محذوفة';
@@ -404,6 +403,10 @@
                     const student = this.students.find(s => s.id === id);
                     return student ? student.name : 'طالب غير معروف';
                 },
+                getStudentCode(id) {
+                    const student = this.students.find(s => s.id === id);
+                    return student ? student.code : '';
+                },
                 getCompletedSessions() {
                     return this.sessions.filter(s => s.status === 'completed').reverse();
                 },
@@ -414,19 +417,23 @@
                     let total = 0;
                     this.sessions.forEach(s => {
                         if (s.records) {
-                            s.records.forEach(r => {
-                                total += Number(r.paidAmount || 0);
-                            });
+                            s.records.forEach(r => { total += Number(r.paidAmount || 0); });
                         }
                     });
                     return total;
+                },
+                getSessionRevenue(session) {
+                    return session.records.reduce((sum, r) => sum + Number(r.paidAmount || 0), 0);
+                },
+                getSessionAttendance(session) {
+                    const attended = session.records.filter(r => r.attended).length;
+                    return `${attended} / ${session.records.length}`;
                 },
                 getAttendedCount() {
                     if (!this.activeSession) return 0;
                     return this.activeSession.records.filter(r => r.attended).length;
                 },
 
-                // --- Actions ---
                 addGroup() {
                     this.groups.push({
                         id: 'G' + Date.now(),
@@ -434,20 +441,32 @@
                         price: this.newGroup.price
                     });
                     this.newGroup = { name: '', price: '' };
-                    alert('تم إضافة المجموعة بنجاح');
                 },
 
                 addStudent() {
-                    const code = Math.floor(1000 + Math.random() * 9000).toString();
+                    // توليد كود فريد من 5 أرقام
+                    let code;
+                    do { code = Math.floor(10000 + Math.random() * 90000).toString(); } 
+                    while (this.students.find(s => s.code === code));
+
                     this.students.push({
                         id: 'S' + Date.now(),
                         code: code,
                         name: this.newStudent.name,
-                        phone: this.newStudent.phone,
                         groupId: this.newStudent.groupId
                     });
-                    this.newStudent = { name: '', phone: '', groupId: '' };
-                    alert(`تم التسجيل! كود الطالب هو: ${code}`);
+                    
+                    this.showBarcode(this.students[this.students.length - 1]);
+                    this.newStudent = { name: '', groupId: '' };
+                },
+
+                showBarcode(student) {
+                    this.barcodeModal = {
+                        show: true,
+                        code: student.code,
+                        studentName: student.name,
+                        groupName: this.getGroupName(student.groupId)
+                    };
                 },
 
                 startSession() {
@@ -467,7 +486,6 @@
                         records: groupStudents.map(s => ({
                             studentId: s.id,
                             attended: false,
-                            examScore: '',
                             paidAmount: ''
                         }))
                     };
@@ -484,25 +502,27 @@
                     
                     if (student) {
                         if (student.groupId !== this.activeSession.groupId) {
-                            this.showScanFeedback('error', 'الطالب ليس في هذه المجموعة!', student.name);
+                            this.showScanFeedback('error', 'الطالب مسجل في مجموعة أخرى!', student.name);
                         } else {
-                            // Find student in session records
                             const recordIndex = this.activeSession.records.findIndex(r => r.studentId === student.id);
                             if (recordIndex !== -1) {
                                 if (this.activeSession.records[recordIndex].attended) {
                                     this.showScanFeedback('error', 'مسجل حضوره بالفعل!', student.name);
                                 } else {
                                     this.activeSession.records[recordIndex].attended = true;
-                                    this.showScanFeedback('success', 'تم الحضور', student.name);
+                                    // تسجيل المصروفات تلقائياً كسعر المجموعة الافتراضي بمجرد الحضور (يمكنك تعديله يدويا)
+                                    this.activeSession.records[recordIndex].paidAmount = this.getGroupPrice(this.activeSession.groupId);
+                                    this.showScanFeedback('success', 'تم تسجيل الحضور', student.name);
                                 }
                             }
                         }
                     } else {
-                        this.showScanFeedback('error', 'كود غير صحيح');
+                        this.showScanFeedback('error', 'هذا الكود غير مسجل بالنظام!');
                     }
 
                     this.scanInput = '';
-                    this.$refs.scannerInput?.focus();
+                    // الإبقاء على التركيز في خانة الإسكانر
+                    setTimeout(() => this.$refs.scannerInput?.focus(), 10);
                 },
 
                 showScanFeedback(type, msg, studentName = '') {
@@ -510,12 +530,11 @@
                     if (this.scanTimeout) clearTimeout(this.scanTimeout);
                     this.scanTimeout = setTimeout(() => {
                         this.scanStatus = null;
-                        if(this.activeView === 'scanner') this.$refs.scannerInput?.focus();
                     }, 2000);
                 },
 
                 endSession() {
-                    if (!confirm('هل أنت متأكد من إنهاء الحصة؟ سيتم حفظ البيانات ولن يمكنك تعديلها.')) return;
+                    if (!confirm('هل أنت متأكد من إنهاء الحصة؟ سيتم اعتبار باقي الطلاب غياب وحفظ البيانات ولن يمكنك تعديلها.')) return;
                     
                     this.activeSession.status = 'completed';
                     this.sessions.push(this.activeSession);
@@ -527,5 +546,3 @@
     </script>
 </body>
 </html>
-
-
