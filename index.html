@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -75,44 +76,44 @@
             </div>
         </div>
 
-        <nav class="flex-1 px-3 space-y-1 mt-2 pb-6 text-sm font-semibold">
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+        <nav class="flex-1 px-3 space-y-1 mt-2 pb-6 text-sm font-semibold overflow-y-auto">
+            <a href="#" id="nav-dashboard" onclick="switchMainView('dashboard', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
                 <i class="fas fa-home w-5 text-center"></i> لوحة التحكم (Dashboard)
             </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 bg-primary/20 border border-primary/30 text-white rounded-lg transition">
+            <a href="#" id="nav-records" onclick="switchMainView('patient', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 bg-primary/20 border border-primary/30 text-white rounded-lg transition">
                 <i class="fas fa-user-injured w-5 text-center text-accent"></i> الملفات الطبية (Records)
             </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <a href="#" onclick="showToast('سيتم تفعيل قسم المواعيد قريباً')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
                 <i class="fas fa-calendar-check w-5 text-center"></i> المواعيد (Appointments)
             </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <a href="#" onclick="showToast('سيتم تفعيل سجل الزيارات قريباً')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
                 <i class="fas fa-stethoscope w-5 text-center"></i> الزيارات (Visits)
             </a>
             
             <div class="pt-4 pb-1 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Clinical Modules</div>
             
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <a href="#" onclick="showToast('قسم التحاليل المخبرية قيد التطوير')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
                 <i class="fas fa-vials w-5 text-center"></i> التحاليل (Labs)
             </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <a href="#" onclick="showToast('مستعرض الأشعات قيد التطوير')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
                 <i class="fas fa-x-ray w-5 text-center"></i> الأشعات (Imaging)
             </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <a href="#" onclick="showToast('قاعدة بيانات الأدوية قيد التطوير')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
                 <i class="fas fa-pills w-5 text-center"></i> الأدوية (Medications)
             </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <a href="#" onclick="switchMainView('patient', document.getElementById('nav-records')); switchTab('growth');" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
                 <i class="fas fa-chart-line w-5 text-center"></i> النمو (Growth)
             </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <a href="#" onclick="showToast('سجل التطعيمات الذكي قيد التطوير')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
                 <i class="fas fa-shield-virus w-5 text-center"></i> التطعيمات (Vaccines)
             </a>
 
             <div class="pt-4 pb-1 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">System</div>
 
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <a href="#" onclick="showToast('لوحة التحليلات الإحصائية قيد التطوير')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
                 <i class="fas fa-chart-pie w-5 text-center"></i> التحليلات (Analytics)
             </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <a href="#" onclick="showToast('إعدادات النظام قيد التطوير')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
                 <i class="fas fa-cog w-5 text-center"></i> الإعدادات (Settings)
             </a>
         </nav>
@@ -129,64 +130,64 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-bgLight">
+    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-bgLight relative">
         
-        <!-- Persistent Patient Header (Quick Info Bar) -->
-        <header class="glass-panel border-b border-slate-200 px-6 py-4 z-10 flex justify-between items-start sticky top-0 shadow-sm">
-            <div class="flex items-start gap-5">
-                <!-- Avatar -->
-                <div class="w-14 h-14 bg-teal-50 text-primary rounded-xl flex items-center justify-center text-xl font-extrabold border border-teal-100 shadow-sm">
-                    م.أ
+        <!-- 1. MAIN DASHBOARD VIEW -->
+        <div id="view-dashboard" class="main-view hidden flex-1 overflow-y-auto p-8 bg-slate-50/50">
+            <div class="max-w-7xl mx-auto animate-fade-in">
+                <h2 class="text-2xl font-black text-dark mb-6 flex items-center gap-3"><i class="fas fa-home text-primary"></i> لوحة التحكم الرئيسية (Clinic Overview)</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 border-b-4 border-b-primary hover:shadow-md transition cursor-pointer" onclick="switchMainView('patient', document.getElementById('nav-records'))">
+                        <div class="w-14 h-14 rounded-full bg-teal-50 flex items-center justify-center text-primary text-2xl"><i class="fas fa-users"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase mb-1">إجمالي المرضى</p>
+                            <h3 class="text-3xl font-black text-dark">1,248</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 border-b-4 border-b-warning hover:shadow-md transition cursor-pointer" onclick="showToast('سيتم فتح جدول مواعيد اليوم')">
+                        <div class="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center text-warning text-2xl"><i class="fas fa-calendar-day"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase mb-1">مواعيد اليوم</p>
+                            <h3 class="text-3xl font-black text-dark">24</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 border-b-4 border-b-alert hover:shadow-md transition">
+                        <div class="w-14 h-14 rounded-full bg-rose-50 flex items-center justify-center text-alert text-2xl"><i class="fas fa-exclamation-circle"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase mb-1">متابعات متأخرة</p>
+                            <h3 class="text-3xl font-black text-dark">5</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 border-b-4 border-b-success hover:shadow-md transition">
+                        <div class="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center text-success text-2xl"><i class="fas fa-flask"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase mb-1">نتائج تحاليل جديدة</p>
+                            <h3 class="text-3xl font-black text-dark">8</h3>
+                        </div>
+                    </div>
                 </div>
-                <!-- Basic Info -->
-                <div>
-                    <div class="flex items-center gap-3 mb-1">
-                        <h2 class="text-2xl font-black text-dark">محمد أحمد محمود</h2>
-                        <span class="font-mono text-xs bg-slate-100 border border-slate-200 text-slate-600 px-2 py-0.5 rounded-md font-bold tracking-wide">ID: NEO-000124</span>
-                    </div>
-                    
-                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600 font-semibold">
-                        <span class="flex items-center gap-1"><i class="far fa-calendar-alt text-slate-400"></i> 4 سنوات و شهرين</span>
-                        <span class="text-slate-300">|</span>
-                        <span class="flex items-center gap-1"><i class="fas fa-mars text-blue-400"></i> ذكر</span>
-                        <span class="text-slate-300">|</span>
-                        <span class="flex items-center gap-1"><i class="fas fa-tint text-red-400"></i> O+</span>
-                        <span class="text-slate-300">|</span>
-                        <span class="flex items-center gap-1 text-slate-500"><i class="far fa-clock"></i> آخر زيارة: 12/09/2026</span>
-                    </div>
 
-                    <div class="flex flex-wrap gap-2 mt-3">
-                        <div class="bg-rose-50 border border-rose-200 text-alert px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 shadow-sm">
-                            <i class="fas fa-exclamation-triangle"></i> حساسية: Amoxicillin (Urticaria)
-                        </div>
-                        <div class="bg-amber-50 border border-amber-200 text-warning px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 shadow-sm">
-                            <i class="fas fa-lungs"></i> مرض مزمن: Recurrent Wheeze
-                        </div>
-                        <div class="bg-teal-50 border border-teal-200 text-primary px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 shadow-sm">
-                            <i class="fas fa-weight"></i> الوزن الحالي: 18.2 kg
-                        </div>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                    <h3 class="text-lg font-black text-dark mb-4 border-b border-slate-100 pb-3 flex justify-between items-center">
+                        <span>الزيارات الأخيرة (Recent Visits)</span>
+                        <button onclick="switchMainView('patient', document.getElementById('nav-records'))" class="text-sm font-bold text-primary hover:underline">عرض الكل</button>
+                    </h3>
+                    <div class="text-center py-10 text-slate-500">
+                        <i class="fas fa-folder-open text-4xl mb-3 text-slate-300"></i>
+                        <p class="font-semibold mb-4">أنت الآن في النسخة التجريبية. يمكنك استعراض ملف المريض (محمد أحمد).</p>
+                        <button onclick="switchMainView('patient', document.getElementById('nav-records'))" class="bg-primary text-white px-5 py-2.5 rounded-lg font-bold hover:bg-teal-700 shadow-md shadow-teal-500/30 transition flex items-center gap-2 mx-auto">
+                            <i class="fas fa-user-injured"></i> فتح الملف الطبي المتاح
+                        </button>
                     </div>
                 </div>
             </div>
-            
-            <div class="flex gap-2">
-                <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition flex items-center gap-2">
-                    <i class="fas fa-print"></i> طباعة الملف
-                </button>
-                <button class="bg-primary hover:bg-teal-800 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md shadow-teal-500/30 transition flex items-center gap-2">
-                    <i class="fas fa-plus"></i> زيارة جديدة
-                </button>
-            </div>
-        </header>
-
-        <!-- Navigation Tabs -->
-        <div class="bg-white px-6 border-b border-slate-200 flex gap-6 text-sm">
-            <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn py-3 text-primary font-bold border-b-[3px] border-primary transition">نظرة عامة (Overview)</button>
-            <button onclick="switchTab('timeline')" id="tab-timeline" class="tab-btn py-3 text-slate-500 hover:text-dark font-semibold border-b-[3px] border-transparent transition">السجل الزمني (Timeline)</button>
-            <button onclick="switchTab('growth')" id="tab-growth" class="tab-btn py-3 text-slate-500 hover:text-dark font-semibold border-b-[3px] border-transparent transition">النمو (Growth)</button>
-            <button onclick="switchTab('nicu')" id="tab-nicu" class="tab-btn py-3 text-slate-500 hover:text-dark font-semibold border-b-[3px] border-transparent transition">تاريخ الولادة (History)</button>
         </div>
 
+        <!-- 2. PATIENT RECORD VIEW -->
+        <div id="view-patient" class="main-view flex-1 flex flex-col h-full overflow-hidden animate-fade-in">
+            <!-- Persistent Patient Header (Quick Info Bar) -->
+            <header class="glass-panel border-b border-slate-200 px-6 py-4 z-10 flex justify-between items-start sticky top-0 shadow-sm">
         <!-- Scrollable Content Area -->
         <div class="flex-1 overflow-y-auto p-6">
             
@@ -504,11 +505,72 @@
                     </div>
                 </div>
             </div>
-
+        </div> <!-- End of view-patient -->
+        
+        <!-- Custom Toast Notification System -->
+        <div id="toast-msg" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-xl shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-3 translate-y-4">
+            <i class="fas fa-info-circle text-accent text-lg"></i>
+            <span id="toast-text" class="text-sm font-bold tracking-wide"></span>
         </div>
+
     </main>
 
+    <style>
+        /* CSS Animations for smooth UI */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        /* Toast notification animation class */
+        #toast-msg.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+    </style>
+
     <script>
+        // --- 0. Main Navigation Logic (NEW) ---
+        function switchMainView(viewId, element) {
+            // Hide all main views
+            document.querySelectorAll('.main-view').forEach(el => el.classList.add('hidden'));
+            
+            // Show selected view
+            const targetView = document.getElementById('view-' + viewId);
+            if(targetView) {
+                targetView.classList.remove('hidden');
+            }
+
+            // Update Sidebar styling to reflect active page
+            if (element) {
+                document.querySelectorAll('.sidebar-link').forEach(el => {
+                    el.classList.remove('bg-primary/20', 'border-primary/30', 'border', 'text-white');
+                    el.classList.add('text-slate-300', 'border-transparent');
+                });
+                element.classList.remove('text-slate-300', 'border-transparent');
+                element.classList.add('bg-primary/20', 'border-primary/30', 'border', 'text-white');
+            }
+        }
+
+        // --- 0.5. Toast Notification System (NEW) ---
+        let toastTimeout;
+        function showToast(message) {
+            const toast = document.getElementById('toast-msg');
+            document.getElementById('toast-text').innerText = message;
+            
+            // Show toast
+            toast.classList.add('show');
+            
+            // Auto hide after 3 seconds, clear previous timeout if clicking rapidly
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
         // --- 1. Tab Switching Logic ---
         function switchTab(tabId) {
             // Hide all contents
