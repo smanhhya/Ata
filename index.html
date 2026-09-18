@@ -1,653 +1,631 @@
-```react
-//import React, { useState, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
-import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine
-} from 'recharts';
-import { 
-  Activity, Calendar, Clock, FileText, Activity as HeartPulse, History, 
-  Home, LayoutDashboard, Pill, Plus, Search, Settings, ShieldAlert, 
-  Syringe, User, Users, ChevronRight, ChevronLeft, Menu, Bell, Globe,
-  Microscope, Stethoscope, ChevronDown, FileBarChart, Filter
-} from 'lucide-react';
-
-// --- I18N / TRANSLATIONS ---
-const t = {
-  en: {
-    appTitle: "NEO MEDICAL RECORD",
-    dashboard: "Dashboard",
-    patients: "Patients",
-    appointments: "Appointments",
-    visits: "Visits",
-    growth: "Growth",
-    medications: "Medications",
-    investigations: "Investigations",
-    settings: "Settings",
-    searchPlaceholder: "Search patient name, ID, diagnosis...",
-    totalPatients: "Total Patients",
-    todaysAppointments: "Today's Appts",
-    followUpsDue: "Follow-ups Due",
-    activeCases: "Active Cases",
-    recentActivity: "Recent Activity",
-    addPatient: "Add Patient",
-    patientName: "Patient Name",
-    mrn: "MRN",
-    age: "Age",
-    lastVisit: "Last Visit",
-    status: "Status",
-    viewRecord: "View Record",
-    overview: "Overview",
-    timeline: "Timeline",
-    allergies: "Allergies",
-    currentWeight: "Current Weight",
-    height: "Height",
-    bloodGroup: "Blood Group",
-    parent: "Parent",
-    contact: "Contact",
-    activeProblems: "Active Problems",
-    currentMeds: "Current Medications",
-    nextAppointment: "Next Appointment",
-    clinicalTimeline: "Clinical Timeline",
-    growthCharts: "Growth Charts (Weight vs Age)",
-    weight: "Weight (kg)",
-    ageMonths: "Age (Months)",
-    clinicVisit: "Clinic Visit",
-    laboratory: "Laboratory",
-    prescription: "Prescription",
-    diagnosis: "Diagnosis",
-    treatment: "Treatment",
-    notes: "Notes",
-    logout: "Log out"
-  },
-  ar: {
-    appTitle: "سجل NEO الطبي",
-    dashboard: "لوحة التحكم",
-    patients: "المرضى",
-    appointments: "المواعيد",
-    visits: "الزيارات",
-    growth: "النمو",
-    medications: "الأدوية",
-    investigations: "الفحوصات",
-    settings: "الإعدادات",
-    searchPlaceholder: "ابحث عن اسم المريض، رقم الملف، التشخيص...",
-    totalPatients: "إجمالي المرضى",
-    todaysAppointments: "مواعيد اليوم",
-    followUpsDue: "متابعات مستحقة",
-    activeCases: "الحالات النشطة",
-    recentActivity: "النشاط الأخير",
-    addPatient: "إضافة مريض",
-    patientName: "اسم المريض",
-    mrn: "رقم الملف",
-    age: "العمر",
-    lastVisit: "آخر زيارة",
-    status: "الحالة",
-    viewRecord: "عرض الملف",
-    overview: "نظرة عامة",
-    timeline: "السجل الزمني",
-    allergies: "الحساسية",
-    currentWeight: "الوزن الحالي",
-    height: "الطول",
-    bloodGroup: "فصيلة الدم",
-    parent: "ولي الأمر",
-    contact: "للتواصل",
-    activeProblems: "المشكلات النشطة",
-    currentMeds: "الأدوية الحالية",
-    nextAppointment: "الموعد القادم",
-    clinicalTimeline: "السجل الطبي الزمني",
-    growthCharts: "منحنيات النمو (الوزن مقابل العمر)",
-    weight: "الوزن (كجم)",
-    ageMonths: "العمر (أشهر)",
-    clinicVisit: "زيارة عيادة",
-    laboratory: "تحاليل",
-    prescription: "روشتة",
-    diagnosis: "التشخيص",
-    treatment: "العلاج",
-    notes: "ملاحظات",
-    logout: "تسجيل الخروج"
-  }
-};
-
-// --- MOCK DATA ---
-const mockPatients = [
-  {
-    id: "NEO-00124",
-    name: { en: "Ahmed Mohamed", ar: "أحمد محمد" },
-    age: { en: "4y 2m", ar: "٤ سنوات وشهران" },
-    gender: { en: "Male", ar: "ذكر" },
-    weight: "18.2 kg",
-    height: "102 cm",
-    bloodGroup: "O+",
-    parent: { en: "Mohamed Ali", ar: "محمد علي" },
-    phone: "+20 100 123 4567",
-    allergies: ["Amoxicillin"],
-    lastVisit: "12 Sep 2026",
-    status: "Active",
-    activeProblems: [
-      { en: "Recurrent Upper Respiratory Tract Infection", ar: "التهاب متكرر في الجهاز التنفسي العلوي" },
-      { en: "Mild Asthma", ar: "ربو خفيف" }
-    ],
-    currentMedications: [
-      { en: "Budesonide Inhaler 200mcg BID", ar: "بخاخ بوديزونيد ٢٠٠ ميكروجرام مرتين" },
-      { en: "Multivitamins Syrup 5ml OD", ar: "شراب فيتامينات ٥ مل مرة يومياً" }
-    ],
-    growthData: [
-      { age: 0, weight: 3.2, p50: 3.3 },
-      { age: 6, weight: 7.5, p50: 7.9 },
-      { age: 12, weight: 9.8, p50: 9.6 },
-      { age: 24, weight: 12.5, p50: 12.2 },
-      { age: 36, weight: 14.8, p50: 14.3 },
-      { age: 48, weight: 17.5, p50: 16.3 },
-      { age: 50, weight: 18.2, p50: 16.7 }, // Current
-    ],
-    timeline: [
-      {
-        id: "t1", date: "30 Sep 2026", type: "visit", icon: Stethoscope,
-        title: { en: "Clinic Visit - Follow-up", ar: "زيارة عيادة - متابعة" },
-        content: { en: "Symptoms improved. Continue inhaler. Weight stable.", ar: "تحسن في الأعراض. الاستمرار على البخاخ. الوزن مستقر." }
-      },
-      {
-        id: "t2", date: "18 Sep 2026", type: "lab", icon: Microscope,
-        title: { en: "Laboratory Results", ar: "نتائج التحاليل" },
-        content: { en: "CBC: Normal. CRP: 5 (Decreased).", ar: "صورة الدم: طبيعية. البروتين التفاعلي: ٥ (انخفض)." }
-      },
-      {
-        id: "t3", date: "12 Sep 2026", type: "visit", icon: Stethoscope,
-        title: { en: "Clinic Visit - Acute", ar: "زيارة عيادة - حالة حادة" },
-        content: { en: "Fever 39C, Cough. Diagnosed URTI. Prescribed treatment, requested labs.", ar: "حرارة ٣٩، سعال. تشخيص التهاب تنفسي علوي. تم وصف العلاج وطلب تحاليل." }
-      },
-      {
-        id: "t4", date: "12 Sep 2026", type: "rx", icon: Pill,
-        title: { en: "Prescription Issued", ar: "تم إصدار روشتة" },
-        content: { en: "Paracetamol 250mg/5ml - 7.5ml Q6H, Azithromycin 200mg/5ml - 4.5ml OD.", ar: "باراسيتامول ٢٥٠مجم - ٧.٥مل كل ٦ ساعات، أزيثروميسين ٢٠٠مجم - ٤.٥مل يومياً." }
-      }
-    ]
-  },
-  {
-    id: "NEO-00289",
-    name: { en: "Layan Youssef", ar: "ليان يوسف" },
-    age: { en: "6m", ar: "٦ أشهر" },
-    gender: { en: "Female", ar: "أنثى" },
-    weight: "7.1 kg",
-    height: "65 cm",
-    bloodGroup: "A+",
-    parent: { en: "Youssef Ahmed", ar: "يوسف أحمد" },
-    phone: "+20 111 987 6543",
-    allergies: [],
-    lastVisit: "15 Sep 2026",
-    status: "Due Vaccine",
-    activeProblems: [],
-    currentMedications: [
-      { en: "Vitamin D Drops 400 IU OD", ar: "نقط فيتامين د ٤٠٠ وحدة دولية يومياً" }
-    ],
-    growthData: [
-      { age: 0, weight: 2.9, p50: 3.2 },
-      { age: 2, weight: 4.8, p50: 5.1 },
-      { age: 4, weight: 6.2, p50: 6.4 },
-      { age: 6, weight: 7.1, p50: 7.3 }, // Current
-    ],
-    timeline: [
-      {
-        id: "t1", date: "15 Sep 2026", type: "visit", icon: Syringe,
-        title: { en: "Well-baby Clinic & Vaccination", ar: "عيادة الأصحاء والتطعيم" },
-        content: { en: "6-month routine checkup. Hexavalent vaccine administered. Started weaning advice.", ar: "فحص روتيني ٦ أشهر. تم إعطاء التطعيم السداسي. تم إعطاء نصائح بدء الطعام." }
-      }
-    ]
-  }
-];
-
-//const Sidebar = ({ lang, setView, currentView }) => {
-  const isAr = lang === 'ar';
-  const navItems = [
-    { id: 'dashboard', icon: LayoutDashboard, label: t[lang].dashboard },
-    { id: 'patients', icon: Users, label: t[lang].patients },
-    { id: 'appointments', icon: Calendar, label: t[lang].appointments },
-    { id: 'growth', icon: FileBarChart, label: t[lang].growth },
-    { id: 'settings', icon: Settings, label: t[lang].settings },
-  ];
-
-  return (
-    <div className={`w-64 bg-teal-900 text-white flex flex-col h-screen fixed top-0 ${isAr ? 'right-0' : 'left-0'} z-20 shadow-xl`}>
-      <div className="p-6 flex items-center gap-3 border-b border-teal-800">
-        <div className="bg-white text-teal-900 p-2 rounded-lg">
-          <Activity size={24} strokeWidth={2.5} />
-        </div>
-        <div>
-          <h1 className="font-bold tracking-wider text-sm leading-tight">NEO</h1>
-          <p className="text-teal-200 text-xs tracking-widest font-semibold opacity-80 uppercase">Medical Record</p>
-        </div>
-      </div>
-      
-      <nav className="flex-1 py-6 px-4 space-y-2">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = currentView === item.id || (currentView === 'patientDetail' && item.id === 'patients');
-          return (
-            <button
-              key={item.id}
-              onClick={() => setView(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                isActive 
-                  ? 'bg-teal-800 text-white shadow-md' 
-                  : 'text-teal-100 hover:bg-teal-800/50 hover:text-white'
-              }`}
-            >
-              <Icon size={20} className={isActive ? 'text-teal-400' : ''} />
-              <span className="font-medium text-sm">{item.label}</span>
-            </button>
-          );
-        })}
-      </nav>
-
-      <div className="p-4 border-t border-teal-800">
-        <div className="flex items-center gap-3 px-4 py-2">
-          <div className="w-8 h-8 rounded-full bg-teal-700 flex items-center justify-center font-bold text-sm">
-            DR
-          </div>
-          <div className="text-left">
-            <p className="text-sm font-semibold">Dr. Ahmed</p>
-            <p className="text-xs text-teal-300">Pediatrician</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Topbar = ({ lang, setLang }) => {
-  const isAr = lang === 'ar';
-  return (
-    <header className={`h-16 bg-white border-b border-neutral-200 flex items-center justify-between px-8 fixed top-0 ${isAr ? 'right-64 left-0' : 'left-64 right-0'} z-10`}>
-      <div className="flex items-center bg-neutral-100 px-4 py-2 rounded-full w-96 border border-neutral-200 focus-within:ring-2 focus-within:ring-teal-500/20 focus-within:border-teal-500 transition-all">
-        <Search size={18} className="text-neutral-400" />
-        <input 
-          type="text" 
-          placeholder={t[lang].searchPlaceholder} 
-          className="bg-transparent border-none outline-none ml-3 w-full text-sm text-neutral-700 placeholder-neutral-400"
-          dir={isAr ? 'rtl' : 'ltr'}
-        />
-      </div>
-
-      <div className="flex items-center gap-4">
-        <button 
-          onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-          className="flex items-center gap-2 text-sm font-medium text-neutral-600 hover:text-teal-700 px-3 py-1.5 rounded-full hover:bg-teal-50 transition-colors"
-        >
-          <Globe size={16} />
-          {lang === 'en' ? 'العربية' : 'English'}
-        </button>
-        <button className="relative p-2 text-neutral-400 hover:text-teal-700 transition-colors">
-          <Bell size={20} />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-        </button>
-      </div>
-    </header>
-  );
-};
-
-//const Dashboard = ({ lang, setView, selectPatient }) => {
-  const stats = [
-    { label: t[lang].totalPatients, value: "1,248", icon: Users, color: "bg-blue-50 text-blue-600 border-blue-100" },
-    { label: t[lang].todaysAppointments, value: "14", icon: Calendar, color: "bg-teal-50 text-teal-600 border-teal-100" },
-    { label: t[lang].followUpsDue, value: "5", icon: Clock, color: "bg-orange-50 text-orange-600 border-orange-100" },
-    { label: t[lang].activeCases, value: "3", icon: HeartPulse, color: "bg-red-50 text-red-600 border-red-100" },
-  ];
-
-  return (
-    <div className="p-8 max-w-7xl mx-auto animate-fade-in">
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <h2 className="text-2xl font-bold text-neutral-800">{t[lang].dashboard}</h2>
-          <p className="text-neutral-500 mt-1 text-sm">Friday, September 18, 2026</p>
-        </div>
-        <button 
-          onClick={() => setView('patients')}
-          className="bg-teal-700 hover:bg-teal-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors shadow-sm"
-        >
-          <Plus size={18} />
-          {t[lang].addPatient}
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, i) => {
-          const Icon = stat.icon;
-          return (
-            <div key={i} className="bg-white p-6 rounded-2xl border border-neutral-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${stat.color}`}>
-                <Icon size={24} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-neutral-800">{stat.value}</p>
-                <p className="text-sm text-neutral-500 font-medium">{stat.label}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="bg-white rounded-2xl border border-neutral-100 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-neutral-100 flex justify-between items-center">
-          <h3 className="font-bold text-neutral-800">{t[lang].recentActivity}</h3>
-          <button onClick={() => setView('patients')} className="text-sm text-teal-700 font-medium hover:underline">View All</button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-neutral-50/50 text-neutral-500 text-xs uppercase tracking-wider">
-                <th className="px-6 py-4 font-semibold">{t[lang].patientName}</th>
-                <th className="px-6 py-4 font-semibold">{t[lang].mrn}</th>
-                <th className="px-6 py-4 font-semibold">{t[lang].lastVisit}</th>
-                <th className="px-6 py-4 font-semibold">{t[lang].status}</th>
-                <th className="px-6 py-4 font-semibold text-right"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100">
-              {mockPatients.map((patient) => (
-                <tr key={patient.id} className="hover:bg-neutral-50/50 transition-colors group cursor-pointer" onClick={() => selectPatient(patient)}>
-                  <td className="px-6 py-4">
-                    <div className="font-semibold text-neutral-800">{patient.name[lang]}</div>
-                    <div className="text-xs text-neutral-500">{patient.age[lang]} • {patient.gender[lang]}</div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-neutral-600 font-medium">{patient.id}</td>
-                  <td className="px-6 py-4 text-sm text-neutral-600">{patient.lastVisit}</td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
-                      patient.status === 'Active' ? 'bg-teal-50 text-teal-700 border border-teal-100' : 'bg-blue-50 text-blue-700 border border-blue-100'
-                    }`}>
-                      {patient.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ChevronRight size={20} className={`text-neutral-400 ${lang === 'ar' ? 'rotate-180' : ''}`} />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-//const PatientDetail = ({ lang, patient, setView }) => {
-  const [activeTab, setActiveTab] = useState('overview');
-  const isAr = lang === 'ar';
-
-  const tabs = [
-    { id: 'overview', label: t[lang].overview },
-    { id: 'timeline', label: t[lang].timeline },
-    { id: 'growth', label: t[lang].growth },
-  ];
-
-  return (
-    <div className="animate-fade-in pb-20">
-      {/* Persistent Header */}
-      <div className="bg-white border-b border-neutral-200 sticky top-16 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-8 py-6">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-5">
-              <div className="w-16 h-16 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center text-2xl font-bold border border-teal-100 shadow-sm">
-                {patient.name[lang].charAt(0)}
-              </div>
-              <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <h2 className="text-2xl font-bold text-neutral-900">{patient.name[lang]}</h2>
-                  <span className="bg-neutral-100 text-neutral-600 px-2.5 py-0.5 rounded text-xs font-mono border border-neutral-200">{patient.id}</span>
-                </div>
-                <div className="flex items-center gap-4 text-sm text-neutral-600 font-medium">
-                  <span className="flex items-center gap-1"><User size={14} className="text-neutral-400"/> {patient.gender[lang]}</span>
-                  <span className="flex items-center gap-1"><Calendar size={14} className="text-neutral-400"/> {patient.age[lang]}</span>
-                  <span className="flex items-center gap-1"><Activity size={14} className="text-neutral-400"/> {patient.weight}</span>
-                </div>
-              </div>
-            </div>
-            
-            {patient.allergies.length > 0 && (
-              <div className="bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl flex items-start gap-3 max-w-sm">
-                <ShieldAlert size={20} className="mt-0.5 shrink-0 text-red-500" />
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-red-500 mb-0.5">{t[lang].allergies}</p>
-                  <p className="text-sm font-semibold">{patient.allergies.join(', ')}</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Navigation Tabs */}
-          <div className="flex gap-8 mt-8 border-b border-neutral-100">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`pb-3 text-sm font-semibold transition-colors relative ${
-                  activeTab === tab.id 
-                    ? 'text-teal-700' 
-                    : 'text-neutral-500 hover:text-neutral-800'
-                }`}
-              >
-                {tab.label}
-                {activeTab === tab.id && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-600 rounded-t-full"></span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Tab Content Area */}
-      <div className="max-w-7xl mx-auto px-8 py-8">
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEO Medical Record - Clinical Dashboard</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for Growth Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cairo for Arabic -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Cairo', 'sans-serif'] },
+                    colors: {
+                        // Premium Healthcare SaaS Palette
+                        primary: '#0f766e', // Deep Professional Teal
+                        secondary: '#0d9488', // Lighter Teal for actions
+                        accent: '#14b8a6',
+                        dark: '#1e293b', // Dark Charcoal for Typography
+                        alert: '#e11d48', // Serious Alert Red
+                        warning: '#d97706', // Warning Orange
+                        success: '#16a34a', // Success Green
+                        bgLight: '#f8fafc', // Warm off-white
+                        card: '#ffffff'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        {/* OVERVIEW TAB */}
-        {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-              {/* Vitals Summary */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm">
-                  <p className="text-xs text-neutral-500 uppercase font-semibold mb-1">{t[lang].currentWeight}</p>
-                  <p className="text-2xl font-bold text-neutral-800">{patient.weight}</p>
-                </div>
-                <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm">
-                  <p className="text-xs text-neutral-500 uppercase font-semibold mb-1">{t[lang].height}</p>
-                  <p className="text-2xl font-bold text-neutral-800">{patient.height}</p>
-                </div>
-                <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm">
-                  <p className="text-xs text-neutral-500 uppercase font-semibold mb-1">{t[lang].bloodGroup}</p>
-                  <p className="text-2xl font-bold text-red-600">{patient.bloodGroup}</p>
-                </div>
-              </div>
+        /* Timeline CSS */
+        .timeline-container { position: relative; padding-right: 2rem; }
+        .timeline-container::before {
+            content: ''; position: absolute; right: 0.5rem; top: 0; bottom: 0; width: 2px; background: #e2e8f0;
+        }
+        .timeline-item { position: relative; margin-bottom: 2rem; }
+        .timeline-item::before {
+            content: ''; position: absolute; right: -2rem; top: 0.25rem; width: 1rem; height: 1rem; border-radius: 50%; background: #0f766e; border: 3px solid #fff; box-shadow: 0 0 0 1px #e2e8f0;
+        }
 
-              {/* Active Problems */}
-              <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm p-6">
-                <h3 className="text-base font-bold text-neutral-800 flex items-center gap-2 mb-4">
-                  <Activity size={18} className="text-teal-600"/> {t[lang].activeProblems}
-                </h3>
-                {patient.activeProblems.length > 0 ? (
-                  <ul className="space-y-3">
-                    {patient.activeProblems.map((prob, i) => (
-                      <li key={i} className="flex items-start gap-3 text-sm text-neutral-700 bg-neutral-50 p-3 rounded-lg border border-neutral-100">
-                        <div className="w-1.5 h-1.5 rounded-full bg-teal-500 mt-2 shrink-0"></div>
-                        {prob[lang]}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                   <p className="text-sm text-neutral-500 italic">No active problems recorded.</p>
-                )}
-              </div>
+        /* Clean SaaS borders and typography */
+        body { color: #1e293b; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="bg-bgLight font-sans h-screen flex overflow-hidden selection:bg-teal-100 selection:text-teal-900">
 
-              {/* Current Medications */}
-              <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm p-6">
-                <h3 className="text-base font-bold text-neutral-800 flex items-center gap-2 mb-4">
-                  <Pill size={18} className="text-blue-600"/> {t[lang].currentMeds}
-                </h3>
-                 {patient.currentMedications.length > 0 ? (
-                  <ul className="space-y-3">
-                    {patient.currentMedications.map((med, i) => (
-                      <li key={i} className="flex items-center gap-3 text-sm font-medium text-neutral-700 p-3 rounded-lg border border-blue-50 bg-blue-50/30">
-                        {med[lang]}
-                      </li>
-                    ))}
-                  </ul>
-                 ) : (
-                   <p className="text-sm text-neutral-500 italic">No active medications.</p>
-                 )}
-              </div>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-dark text-slate-300 flex flex-col shadow-2xl z-20 overflow-y-auto">
+        <div class="p-6 flex items-center gap-3 border-b border-slate-700/50 sticky top-0 bg-dark z-10">
+            <i class="fas fa-notes-medical text-3xl text-accent"></i>
+            <div>
+                <h1 class="text-xl font-bold tracking-widest text-white">NEO</h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Medical Record</p>
             </div>
-
-            {/* Right Sidebar - Contact & Meta */}
-            <div className="space-y-6">
-              <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm p-6">
-                 <h3 className="text-sm font-bold text-neutral-800 mb-4">{t[lang].parent} / {t[lang].contact}</h3>
-                 <div className="space-y-3 text-sm">
-                   <div>
-                     <p className="text-neutral-500 text-xs mb-0.5">{t[lang].parent}</p>
-                     <p className="font-medium text-neutral-800">{patient.parent[lang]}</p>
-                   </div>
-                   <div>
-                     <p className="text-neutral-500 text-xs mb-0.5">Phone</p>
-                     <p className="font-medium text-neutral-800 dir-ltr text-left" dir="ltr">{patient.phone}</p>
-                   </div>
-                 </div>
-              </div>
+        </div>
+        
+        <div class="p-4">
+            <div class="relative">
+                <input type="text" placeholder="بحث مريض (الاسم، ID).." class="w-full bg-slate-800 text-white placeholder-slate-500 rounded-lg px-4 py-2 border border-slate-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-sm transition-all">
+                <i class="fas fa-search absolute left-3 top-3 text-slate-500"></i>
             </div>
-          </div>
-        )}
+        </div>
 
-        {/* }
-        {activeTab === 'timeline' && (
-          <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8">
-            <h3 className="text-lg font-bold text-neutral-800 mb-8">{t[lang].clinicalTimeline}</h3>
+        <nav class="flex-1 px-3 space-y-1 mt-2 pb-6 text-sm font-semibold">
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-home w-5 text-center"></i> لوحة التحكم (Dashboard)
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 bg-primary/20 border border-primary/30 text-white rounded-lg transition">
+                <i class="fas fa-user-injured w-5 text-center text-accent"></i> الملفات الطبية (Records)
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-calendar-check w-5 text-center"></i> المواعيد (Appointments)
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-stethoscope w-5 text-center"></i> الزيارات (Visits)
+            </a>
             
-            <div className="relative border-l-2 border-neutral-100 ml-4 pl-8 space-y-10" dir="ltr">
-              {patient.timeline.map((event, index) => {
-                const Icon = event.icon;
-                let bgColors = "bg-neutral-100 text-neutral-600 border-neutral-200";
-                if(event.type === 'visit') bgColors = "bg-teal-50 text-teal-700 border-teal-200";
-                if(event.type === 'lab') bgColors = "bg-blue-50 text-blue-700 border-blue-200";
-                if(event.type === 'rx') bgColors = "bg-purple-50 text-purple-700 border-purple-200";
+            <div class="pt-4 pb-1 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Clinical Modules</div>
+            
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-vials w-5 text-center"></i> التحاليل (Labs)
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-x-ray w-5 text-center"></i> الأشعات (Imaging)
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-pills w-5 text-center"></i> الأدوية (Medications)
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-chart-line w-5 text-center"></i> النمو (Growth)
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-shield-virus w-5 text-center"></i> التطعيمات (Vaccines)
+            </a>
 
-                return (
-                  <div key={event.id} className="relative" dir={isAr ? 'rtl' : 'ltr'}>
-                    {/* Timeline Dot */}
-                    <div className={`absolute -left-[45px] w-10 h-10 rounded-full border-2 flex items-center justify-center bg-white ${bgColors} z-10`}>
-                      <Icon size={18} />
+            <div class="pt-4 pb-1 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">System</div>
+
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-chart-pie w-5 text-center"></i> التحليلات (Analytics)
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-cog w-5 text-center"></i> الإعدادات (Settings)
+            </a>
+        </nav>
+        
+        <div class="p-4 border-t border-slate-700/50 text-xs text-slate-400 bg-slate-900/50">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold">د.أ</div>
+                <div>
+                    <p class="text-white font-bold">د. أحمد</p>
+                    <p class="text-[10px]">Clinic Admin</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-bgLight">
+        
+        <!-- Persistent Patient Header (Quick Info Bar) -->
+        <header class="glass-panel border-b border-slate-200 px-6 py-4 z-10 flex justify-between items-start sticky top-0 shadow-sm">
+            <div class="flex items-start gap-5">
+                <!-- Avatar -->
+                <div class="w-14 h-14 bg-teal-50 text-primary rounded-xl flex items-center justify-center text-xl font-extrabold border border-teal-100 shadow-sm">
+                    م.أ
+                </div>
+                <!-- Basic Info -->
+                <div>
+                    <div class="flex items-center gap-3 mb-1">
+                        <h2 class="text-2xl font-black text-dark">محمد أحمد محمود</h2>
+                        <span class="font-mono text-xs bg-slate-100 border border-slate-200 text-slate-600 px-2 py-0.5 rounded-md font-bold tracking-wide">ID: NEO-000124</span>
                     </div>
                     
-                    {/* Content Card */}
-                    <div className="bg-neutral-50 rounded-xl p-5 border border-neutral-100 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-bold text-neutral-800 text-base">{event.title[lang]}</h4>
-                        <span className="text-xs font-semibold text-neutral-500 bg-white px-2 py-1 rounded border border-neutral-200">{event.date}</span>
-                      </div>
-                      <p className="text-sm text-neutral-600 leading-relaxed">{event.content[lang]}</p>
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600 font-semibold">
+                        <span class="flex items-center gap-1"><i class="far fa-calendar-alt text-slate-400"></i> 4 سنوات و شهرين</span>
+                        <span class="text-slate-300">|</span>
+                        <span class="flex items-center gap-1"><i class="fas fa-mars text-blue-400"></i> ذكر</span>
+                        <span class="text-slate-300">|</span>
+                        <span class="flex items-center gap-1"><i class="fas fa-tint text-red-400"></i> O+</span>
+                        <span class="text-slate-300">|</span>
+                        <span class="flex items-center gap-1 text-slate-500"><i class="far fa-clock"></i> آخر زيارة: 12/09/2026</span>
                     </div>
-                  </div>
-                )
-              })}
+
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        <div class="bg-rose-50 border border-rose-200 text-alert px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 shadow-sm">
+                            <i class="fas fa-exclamation-triangle"></i> حساسية: Amoxicillin (Urticaria)
+                        </div>
+                        <div class="bg-amber-50 border border-amber-200 text-warning px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 shadow-sm">
+                            <i class="fas fa-lungs"></i> مرض مزمن: Recurrent Wheeze
+                        </div>
+                        <div class="bg-teal-50 border border-teal-200 text-primary px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 shadow-sm">
+                            <i class="fas fa-weight"></i> الوزن الحالي: 18.2 kg
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        )}
-
-        {/* }
-        {activeTab === 'growth' && (
-          <div className="space-y-8">
-            <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm p-6">
-              <h3 className="text-lg font-bold text-neutral-800 mb-6">{t[lang].growthCharts}</h3>
-              
-              <div className="h-[400px] w-full mt-4" dir="ltr">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={patient.growthData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f5" vertical={false} />
-                    <XAxis 
-                      dataKey="age" 
-                      label={{ value: t[lang].ageMonths, position: 'insideBottom', offset: -10, style: { fontSize: 12, fill: '#737373' } }} 
-                      tick={{fontSize: 12, fill: '#737373'}}
-                      axisLine={{stroke: '#e5e5e5'}}
-                      tickLine={false}
-                    />
-                    <YAxis 
-                      label={{ value: t[lang].weight, angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#737373' } }} 
-                      tick={{fontSize: 12, fill: '#737373'}}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <RechartsTooltip 
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      labelStyle={{ color: '#525252', fontWeight: 'bold', marginBottom: '4px' }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="p50" 
-                      stroke="#94a3b8" 
-                      strokeWidth={2} 
-                      strokeDasharray="5 5" 
-                      dot={false}
-                      name="P50 (Standard)"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="weight" 
-                      stroke="#0d9488" 
-                      strokeWidth={3} 
-                      activeDot={{ r: 6, strokeWidth: 0 }}
-                      name={patient.name[lang]}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+            
+            <div class="flex gap-2">
+                <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition flex items-center gap-2">
+                    <i class="fas fa-print"></i> طباعة الملف
+                </button>
+                <button class="bg-primary hover:bg-teal-800 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md shadow-teal-500/30 transition flex items-center gap-2">
+                    <i class="fas fa-plus"></i> زيارة جديدة
+                </button>
             </div>
-          </div>
-        )}
+        </header>
 
-      </div>
-    </div>
-  );
-};
+        <!-- Navigation Tabs -->
+        <div class="bg-white px-6 border-b border-slate-200 flex gap-6 text-sm">
+            <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn py-3 text-primary font-bold border-b-[3px] border-primary transition">نظرة عامة (Overview)</button>
+            <button onclick="switchTab('timeline')" id="tab-timeline" class="tab-btn py-3 text-slate-500 hover:text-dark font-semibold border-b-[3px] border-transparent transition">السجل الزمني (Timeline)</button>
+            <button onclick="switchTab('growth')" id="tab-growth" class="tab-btn py-3 text-slate-500 hover:text-dark font-semibold border-b-[3px] border-transparent transition">النمو (Growth)</button>
+            <button onclick="switchTab('nicu')" id="tab-nicu" class="tab-btn py-3 text-slate-500 hover:text-dark font-semibold border-b-[3px] border-transparent transition">تاريخ الولادة (History)</button>
+        </div>
 
+        <!-- Scrollable Content Area -->
+        <div class="flex-1 overflow-y-auto p-6">
+            
+            <!-- 1. Overview Tab -->
+            <div id="content-overview" class="tab-content">
+                
+                <!-- Top Summary Cards -->
+                <div class="grid grid-cols-5 gap-4 mb-6">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center">
+                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">الوزن الحالي</span>
+                        <div class="text-2xl font-black text-dark" dir="ltr">18.2 <span class="text-sm text-slate-400 font-semibold">kg</span></div>
+                        <span class="text-[10px] text-green-600 font-bold mt-1 bg-green-50 px-1.5 rounded"><i class="fas fa-arrow-up"></i> 50th pctl</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center">
+                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">الطول الحالي</span>
+                        <div class="text-2xl font-black text-dark" dir="ltr">108 <span class="text-sm text-slate-400 font-semibold">cm</span></div>
+                        <span class="text-[10px] text-slate-500 font-bold mt-1">Normal</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center">
+                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">محيط الرأس (HC)</span>
+                        <div class="text-2xl font-black text-dark" dir="ltr">51.2 <span class="text-sm text-slate-400 font-semibold">cm</span></div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center">
+                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">مؤشر الكتلة (BMI)</span>
+                        <div class="text-2xl font-black text-dark" dir="ltr">15.6</div>
+                        <span class="text-[10px] text-green-600 font-bold mt-1">Healthy Weight</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center">
+                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">التطعيمات</span>
+                        <div class="text-lg font-black text-primary mt-1">مكتملة</div>
+                        <span class="text-[10px] text-slate-500 mt-1">Up to date</span>
+                    </div>
+                </div>
 
-//const App = () => {
-  const [lang, setLang] = useState('en');
-  const [currentView, setCurrentView] = useState('dashboard'); // dashboard, patients, patientDetail
-  const [selectedPatient, setSelectedPatient] = useState(null);
+                <div class="grid grid-cols-3 gap-6">
+                    <!-- Left Column -->
+                    <div class="col-span-2 space-y-6">
+                        <!-- Active Diagnoses -->
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 class="text-sm font-black text-dark mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i class="fas fa-stethoscope text-primary"></i> Active Problems</h3>
+                            <ul class="space-y-3">
+                                <li class="flex justify-between items-center p-3 bg-slate-50 border border-slate-100 rounded-lg">
+                                    <div>
+                                        <span class="font-bold text-dark block text-left" dir="ltr">Recurrent Wheeze / Asthma</span>
+                                        <span class="text-xs text-slate-500">منذ: 15/02/2025 | يتم السيطرة عليها جزئياً</span>
+                                    </div>
+                                    <span class="bg-warning/10 text-warning border border-warning/20 text-xs px-2 py-1 rounded-md font-bold">Chronic</span>
+                                </li>
+                            </ul>
+                        </div>
 
-  useEffect(() => {
-    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = lang;
-  }, [lang]);
+                        <!-- Current Medications -->
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 class="text-sm font-black text-dark mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i class="fas fa-pills text-primary"></i> Active Medications</h3>
+                            <div class="overflow-x-auto text-left" dir="ltr">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                                        <tr>
+                                            <th class="p-3 rounded-tl-lg">Drug (Generic/Brand)</th>
+                                            <th class="p-3">Dose</th>
+                                            <th class="p-3">Frequency</th>
+                                            <th class="p-3 rounded-tr-lg">Start Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr>
+                                            <td class="p-3">
+                                                <span class="font-bold text-dark block">Salbutamol Inhaler (100mcg)</span>
+                                                <span class="text-xs text-slate-400">Bronchodilator</span>
+                                            </td>
+                                            <td class="p-3 font-semibold text-slate-700">2 Puffs</td>
+                                            <td class="p-3 font-semibold text-slate-700">PRN</td>
+                                            <td class="p-3 text-slate-500">12/09/2026</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-3">
+                                                <span class="font-bold text-dark block">Fluticasone (Flixotide)</span>
+                                                <span class="text-xs text-slate-400">ICS</span>
+                                            </td>
+                                            <td class="p-3 font-semibold text-slate-700">125 mcg</td>
+                                            <td class="p-3 font-semibold text-slate-700">BID</td>
+                                            <td class="p-3 text-slate-500">15/02/2025</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Clinical Calculator Prototype -->
+                        <div class="bg-gradient-to-r from-teal-50 to-white p-5 rounded-xl border border-teal-100 shadow-sm border-r-4 border-r-primary">
+                            <h3 class="text-sm font-black text-primary mb-1 flex items-center gap-2"><i class="fas fa-calculator"></i> حاسبة الجرعات السريعة (Dose Calculator)</h3>
+                            <p class="text-xs text-slate-500 mb-4">يعتمد الحساب على الوزن المسجل في آخر زيارة: <strong id="calc-weight" class="text-dark">18.2 kg</strong></p>
+                            
+                            <div class="flex gap-3 items-end">
+                                <div class="flex-1">
+                                    <label class="block text-xs font-bold text-slate-700 mb-1.5">اختر الدواء (Drug & Concentration)</label>
+                                    <select id="med-select" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm text-left font-semibold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition" dir="ltr">
+                                        <option value="15" data-conc="250" data-vol="5">Paracetamol (250mg/5ml) - Dose: 15mg/kg</option>
+                                        <option value="10" data-conc="100" data-vol="5">Ibuprofen (100mg/5ml) - Dose: 10mg/kg</option>
+                                        <option value="10" data-conc="200" data-vol="5">Azithromycin (200mg/5ml) - Dose: 10mg/kg</option>
+                                    </select>
+                                </div>
+                                <button onclick="calculateDose()" class="bg-dark text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-slate-700 transition shadow-sm">احسب الجرعة</button>
+                            </div>
+                            <div id="dose-result" class="mt-4 p-3 bg-white border border-teal-100 rounded-lg text-center text-lg font-black text-primary hidden shadow-sm">
+                                <!-- Result will appear here -->
+                            </div>
+                        </div>
+                    </div>
 
-  const handleSelectPatient = (patient) => {
-    setSelectedPatient(patient);
-    setCurrentView('patientDetail');
-  };
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <!-- Family & Social -->
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 class="text-sm font-black text-dark mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i class="fas fa-users text-primary"></i> Family Profile</h3>
+                            <ul class="text-sm space-y-3">
+                                <li class="flex justify-between items-center"><span class="font-bold text-slate-500">الأب:</span> <span class="text-dark font-semibold">أحمد محمود (مهندس)</span></li>
+                                <li class="flex justify-between items-center"><span class="font-bold text-slate-500">الأم:</span> <span class="text-dark font-semibold">سارة علي (معلمة)</span></li>
+                                <li class="flex justify-between items-center"><span class="font-bold text-slate-500">صلة قرابة:</span> <span class="text-dark font-semibold">لا يوجد</span></li>
+                                <li class="flex justify-between items-center"><span class="font-bold text-slate-500">Family Hx:</span> <span class="text-alert font-bold" dir="ltr">Asthma (Mother)</span></li>
+                                <li class="flex justify-between items-center"><span class="font-bold text-slate-500">تعرض للتدخين:</span> <span class="text-alert font-bold">الأب مدخن</span></li>
+                                <li class="flex justify-between items-center"><span class="font-bold text-slate-500">المدرسة/الحضانة:</span> <span class="text-dark font-semibold">حضانة الأمل</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-  const isAr = lang === 'ar';
+            <!-- 2. Timeline Tab -->
+            <div id="content-timeline" class="tab-content hidden max-w-4xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-xl font-black text-dark">Medical Timeline</h2>
+                    <div class="flex gap-2">
+                        <button class="bg-white border border-slate-200 text-slate-600 font-semibold px-4 py-2 text-sm rounded-lg hover:bg-slate-50 shadow-sm transition"><i class="fas fa-filter mr-1"></i> تصفية (Filter)</button>
+                    </div>
+                </div>
 
-  return (
-    <div className={`min-h-screen bg-neutral-50 text-neutral-900 font-sans selection:bg-teal-200 selection:text-teal-900 ${isAr ? 'font-arabic' : ''}`}>
-      <Sidebar lang={lang} setView={setCurrentView} currentView={currentView} />
-      <Topbar lang={lang} setLang={setLang} />
-      
-      <main className={`pt-16 transition-all duration-300 ${isAr ? 'mr-64' : 'ml-64'}`}>
-        {currentView === 'dashboard' && (
-          <Dashboard lang={lang} setView={setCurrentView} selectPatient={handleSelectPatient} />
-        )}
-        {currentView === 'patients' && (
-          <Dashboard lang={lang} setView={setCurrentView} selectPatient={handleSelectPatient} /> // Reusing dashboard list for prototype brevity
-        )}
-        {currentView === 'patientDetail' && selectedPatient && (
-          <PatientDetail lang={lang} patient={selectedPatient} setView={setCurrentView} />
-        )}
-      </main>
-    </div>
-  );
-};
+                <div class="timeline-container text-left" dir="ltr">
+                    
+                    <!-- Timeline Item 1 -->
+                    <div class="timeline-item bg-white p-6 rounded-xl border border-slate-200 shadow-sm ml-8 transition hover:shadow-md">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] px-2.5 py-1 rounded-md font-extrabold uppercase tracking-widest">Follow-up Visit</span>
+                                <h3 class="text-lg font-black text-dark mt-2">Improved after URTI Treatment</h3>
+                            </div>
+                            <span class="text-slate-400 text-sm font-bold flex items-center gap-1"><i class="far fa-calendar-alt"></i> 17 Sep 2026</span>
+                        </div>
+                        <div class="text-sm text-slate-600 mb-4 space-y-1">
+                            <p><span class="font-bold text-slate-800">Subjective:</span> Mother reports fever subsided. Cough improved.</p>
+                            <p><span class="font-bold text-slate-800">O/E:</span> Chest clear bilaterally. Throat normal.</p>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-lg text-sm border-l-4 border-l-success flex items-start gap-2">
+                            <i class="fas fa-check-circle text-success mt-0.5"></i>
+                            <div>
+                                <span class="font-bold text-dark block">Plan:</span> 
+                                <span class="text-slate-600">Continue symptomatic treatment if needed. Stop antibiotic.</span>
+                            </div>
+                        </div>
+                    </div>
 
-// Render App
-const root = createRoot(document.getElementById('root'));
-root.render(<App />);
+                    <!-- Timeline Item 2 -->
+                    <div class="timeline-item bg-white p-6 rounded-xl border border-slate-200 shadow-sm ml-8 transition hover:shadow-md">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="bg-rose-50 text-alert border border-rose-200 text-[10px] px-2.5 py-1 rounded-md font-extrabold uppercase tracking-widest">Sick Visit</span>
+                                <h3 class="text-lg font-black text-dark mt-2">High Fever & Persistent Cough</h3>
+                            </div>
+                            <span class="text-slate-400 text-sm font-bold flex items-center gap-1"><i class="far fa-calendar-alt"></i> 12 Sep 2026</span>
+                        </div>
+                        
+                        <!-- Vitals mini-cards -->
+                        <div class="flex gap-3 mb-4">
+                            <div class="bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-lg text-center text-xs"><span class="text-slate-400 block mb-0.5">Weight</span><span class="font-bold text-dark">18.2 kg</span></div>
+                            <div class="bg-rose-50 border border-rose-100 px-3 py-1.5 rounded-lg text-center text-xs"><span class="text-rose-400 block mb-0.5">Temp</span><span class="font-bold text-alert">38.5 °C</span></div>
+                            <div class="bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-lg text-center text-xs"><span class="text-slate-400 block mb-0.5">SpO2</span><span class="font-bold text-dark">97%</span></div>
+                        </div>
+
+                        <div class="text-sm text-slate-600 mb-4 border-l-2 border-slate-200 pl-3">
+                            <p><span class="font-bold text-slate-800">Diagnosis:</span> Upper Respiratory Tract Infection (URTI) with bronchospasm.</p>
+                        </div>
+                        
+                        <!-- Prescription Block -->
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 text-sm mb-3">
+                            <span class="font-black text-dark block mb-2 flex items-center gap-2"><i class="fas fa-prescription text-primary"></i> Prescription:</span>
+                            <ul class="list-disc pl-5 space-y-1 text-slate-700 font-medium">
+                                <li>Azithromycin 200mg/5ml <span class="text-slate-400 font-normal">— 4.5 ml once daily for 3 days</span></li>
+                                <li>Paracetamol 250mg/5ml <span class="text-slate-400 font-normal">— 5.5 ml PRN for fever</span></li>
+                                <li>Salbutamol Inhaler <span class="text-slate-400 font-normal">— 2 Puffs PRN</span></li>
+                            </ul>
+                        </div>
+
+                        <!-- Attachments -->
+                        <div class="bg-teal-50/50 border border-teal-100 p-3 rounded-lg text-sm flex justify-between items-center transition hover:bg-teal-50">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-file-pdf text-primary text-lg"></i>
+                                <span class="font-bold text-primary">CBC Lab Result</span>
+                            </div>
+                            <button class="text-primary font-bold text-xs hover:underline">View Document</button>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Item 2 -->
+                    <div class="timeline-item bg-white p-5 rounded-xl shadow-sm border border-gray-100 ml-8">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider">Sick Visit</span>
+                                <h3 class="text-lg font-bold text-gray-800 mt-2">High Fever & Cough</h3>
+                            </div>
+                            <span class="text-gray-500 text-sm font-semibold"><i class="far fa-calendar-alt"></i> 12/09/2026</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 mb-3">
+                            <div class="bg-gray-50 p-2 rounded text-center text-xs"><span class="block text-gray-500">Wt</span><span class="font-bold">18.2 kg</span></div>
+                            <div class="bg-gray-50 p-2 rounded text-center text-xs"><span class="block text-gray-500">Temp</span><span class="font-bold text-red-500">38.5 °C</span></div>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-3">
+                            <p><span class="font-bold">Diagnosis:</span> Upper Respiratory Tract Infection (URTI) with bronchospasm.</p>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded text-sm mb-2">
+                            <span class="font-bold block mb-1"><i class="fas fa-prescription text-primary"></i> Prescription:</span>
+                            <ul class="list-disc pl-5">
+                                <li>Azithromycin 200mg/5ml - 4.5 ml once daily for 3 days</li>
+                                <li>Paracetamol 250mg/5ml - 5.5 ml PRN for fever</li>
+                            </ul>
+                        </div>
+                        <div class="bg-blue-50 p-2 rounded text-sm flex justify-between items-center">
+                            <span><i class="fas fa-file-medical text-blue-500 mr-2"></i> CBC Lab Result Uploaded</span>
+                            <button class="text-blue-600 text-xs hover:underline">View PDF</button>
+                        </div>
+                    </div>
+
+                     <!-- Timeline Item 3 -->
+                     <div class="timeline-item bg-white p-5 rounded-xl shadow-sm border border-gray-100 ml-8">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider">Well Child Visit</span>
+                                <h3 class="text-lg font-bold text-gray-800 mt-2">Routine Checkup & Vaccination</h3>
+                            </div>
+                            <span class="text-gray-500 text-sm font-semibold"><i class="far fa-calendar-alt"></i> 10/01/2026</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-3">
+                            <p><span class="font-bold">Growth:</span> Wt: 16.4 kg (50th percentile). Normal growth velocity.</p>
+                            <p><span class="font-bold">Vaccine Given:</span> MMR Booster.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 3. Growth Charts Tab -->
+            <div id="content-growth" class="tab-content hidden">
+                <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Growth Charts (WHO Standards)</h2>
+                        <select class="border p-2 rounded bg-gray-50 text-sm" dir="ltr">
+                            <option>Weight-for-Age (Boys)</option>
+                            <option>Length/Height-for-Age</option>
+                            <option>BMI-for-Age</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Canvas for Chart.js -->
+                    <div class="w-full h-[400px]" dir="ltr">
+                    <div class="mt-6 text-sm text-slate-600 bg-white border border-slate-200 p-5 rounded-xl shadow-sm flex gap-3">
+                        <i class="fas fa-lightbulb text-warning text-lg mt-0.5"></i> 
+                        <div>
+                            <strong class="text-dark block mb-1">Clinical Insight:</strong> 
+                            قراءة الوزن الحالية (18.2 كجم) تقع بين Percentile 50 و 75. مؤشر كتلة الجسم (BMI) 15.6، ومعدل النمو (Growth Velocity) طبيعي جداً مقارنة بالزيارة السابقة منذ 6 أشهر (16.4 كجم).
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. NICU/Birth History Tab -->
+            <div id="content-nicu" class="tab-content hidden">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <h2 class="text-xl font-black text-dark border-b border-slate-200 pb-3">Neonatal & Developmental History</h2>
+                    
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm text-left" dir="ltr">
+                            <h3 class="text-sm font-black text-primary mb-4 pb-2 border-b border-slate-100 uppercase tracking-widest">Birth Details</h3>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex justify-between items-center border-b border-slate-50 pb-2">
+                                    <span class="text-slate-500 font-semibold">Gestational Age</span> <span class="font-black text-dark bg-slate-100 px-2 py-0.5 rounded">36 Weeks (Preterm)</span>
+                                </li>
+                                <li class="flex justify-between items-center border-b border-slate-50 pb-2">
+                                    <span class="text-slate-500 font-semibold">Mode of Delivery</span> <span class="font-bold text-dark">CS (Elective)</span>
+                                </li>
+                                <li class="flex justify-between items-center border-b border-slate-50 pb-2">
+                                    <span class="text-slate-500 font-semibold">Birth Weight</span> <span class="font-bold text-dark">2.4 kg</span>
+                                </li>
+                                <li class="flex justify-between items-center pb-1">
+                                    <span class="text-slate-500 font-semibold">Apgar Score</span> <span class="font-bold text-dark">7 (1m) → 9 (5m)</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm text-left" dir="ltr">
+                            <h3 class="text-sm font-black text-primary mb-4 pb-2 border-b border-slate-100 uppercase tracking-widest">NICU Admission</h3>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex justify-between items-center border-b border-slate-50 pb-2">
+                                    <span class="text-slate-500 font-semibold">Admission Reason</span> <span class="font-bold text-dark">TTN / Prematurity</span>
+                                </li>
+                                <li class="flex justify-between items-center border-b border-slate-50 pb-2">
+                                    <span class="text-slate-500 font-semibold">Duration of Stay</span> <span class="font-bold text-dark">5 Days</span>
+                                </li>
+                                <li class="flex justify-between items-center border-b border-slate-50 pb-2">
+                                    <span class="text-slate-500 font-semibold">Respiratory Support</span> <span class="font-bold text-dark">CPAP (2 Days)</span>
+                                </li>
+                                <li class="flex justify-between items-center pb-1">
+                                    <span class="text-slate-500 font-semibold">Phototherapy</span> <span class="font-bold text-dark">Yes (Day 3-4)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- 1. Tab Switching Logic ---
+        function switchTab(tabId) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            // Show selected content
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            
+            // Reset tab styling
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('text-primary', 'border-primary');
+                el.classList.add('text-slate-500', 'border-transparent');
+            });
+            // Highlight active tab
+            const activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.remove('text-slate-500', 'border-transparent');
+            activeBtn.classList.add('text-primary', 'border-primary');
+
+            // Render chart if growth tab is clicked
+            if (tabId === 'growth' && !window.chartRendered) {
+                renderGrowthChart();
+                window.chartRendered = true;
+            }
+        }
+
+        // --- 2. Dose Calculator Logic ---
+        function calculateDose() {
+            const weight = 18.2; // Currently hardcoded based on patient profile
+            const select = document.getElementById('med-select');
+            const selectedOption = select.options[select.selectedIndex];
+            
+            const dosePerKg = parseFloat(selectedOption.value); // e.g., 15 mg/kg
+            const concentration = parseFloat(selectedOption.getAttribute('data-conc')); // e.g., 250 mg
+            const volume = parseFloat(selectedOption.getAttribute('data-vol')); // e.g., 5 ml
+
+            // Formula: (Weight * Dose/Kg * Volume) / Concentration
+            const totalMg = weight * dosePerKg;
+            const mlRequired = (totalMg * volume) / concentration;
+
+            const resultDiv = document.getElementById('dose-result');
+            resultDiv.innerHTML = `الجرعة المطلوبة: <span class="text-2xl ml-1 text-dark">${mlRequired.toFixed(1)} ml</span> <br> <span class="text-xs text-slate-500 font-semibold mt-1 block">(${totalMg.toFixed(0)} mg per dose)</span>`;
+            resultDiv.classList.remove('hidden');
+        }
+
+        // --- 3. Chart.js Implementation (Simulating WHO Growth Chart) ---
+        function renderGrowthChart() {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            
+            // Dummy data to simulate WHO curves (Age in months vs Weight in Kg)
+            const labels = [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60]; // Months up to 5 years
+            
+            // Simulating Percentile curves
+            const p3 = [3.3, 7.1, 8.9, 10.1, 11.3, 12.4, 13.3, 14.3, 15.3, 16.2, 17.0];
+            const p50 = [3.3, 7.9, 9.6, 10.9, 12.2, 13.3, 14.3, 15.3, 16.3, 17.3, 18.3];
+            const p97 = [3.3, 8.8, 10.8, 12.3, 13.6, 15.0, 16.2, 17.5, 18.8, 20.2, 21.6];
+            
+            // Actual Patient Data
+            // Points: Birth(0): 2.4 (preterm dip), 1 year(12): 9.0, 2 years(24): 11.5, 3.5 yrs(42): 16.4, ~4 yrs(50): 18.2
+            const patientData = [2.4, null, 9.0, null, 11.5, null, null, 16.4, null, 18.2, null];
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Patient Data (Ahmed)',
+                            data: patientData,
+                            borderColor: '#0f766e', // Deep Teal
+                            backgroundColor: '#0f766e',
+                            borderWidth: 3,
+                            pointRadius: 6,
+                            pointBackgroundColor: '#14b8a6', // Accent Teal
+                            tension: 0.3,
+                            spanGaps: true
+                        },
+                        {
+                            label: '97th Percentile',
+                            data: p97,
+                            borderColor: 'rgba(239, 68, 68, 0.4)', // Red light
+                            borderWidth: 1,
+                            pointRadius: 0,
+                            tension: 0.4
+                        },
+                        {
+                            label: '50th Percentile',
+                            data: p50,
+                            borderColor: 'rgba(34, 197, 94, 0.5)', // Green light
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            tension: 0.4
+                        },
+                        {
+                            label: '3rd Percentile',
+                            data: p3,
+                            borderColor: 'rgba(239, 68, 68, 0.4)', // Red light
+                            borderWidth: 1,
+                            pointRadius: 0,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: 'Age (Months)' } },
+                        y: { title: { display: true, text: 'Weight (kg)' } }
+                    },
+                    plugins: {
+                        tooltip: { mode: 'index', intersect: false }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
 ```
