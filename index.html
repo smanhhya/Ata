@@ -3,689 +3,646 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEO Medical Record - Clinical Dashboard</title>
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js for Growth Charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Cairo for Arabic -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>NEO KIDS | Pediatric & Neonatal EMR</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Cairo', 'sans-serif'] },
                     colors: {
-                        // Premium Healthcare SaaS Palette
-                        primary: '#0f766e', // Deep Professional Teal
-                        secondary: '#0d9488', // Lighter Teal for actions
-                        accent: '#14b8a6',
-                        dark: '#1e293b', // Dark Charcoal for Typography
-                        alert: '#e11d48', // Serious Alert Red
-                        warning: '#d97706', // Warning Orange
-                        success: '#16a34a', // Success Green
-                        bgLight: '#f8fafc', // Warm off-white
-                        card: '#ffffff'
+                        neo: {
+                            ivory: '#f5f2eb',
+                            white: '#ffffff',
+                            green: '#2b4c40',
+                            'green-light': '#4b7865',
+                            beige: '#e3dacc',
+                            charcoal: '#1a2622',
+                            danger: '#c94a4a',
+                            warning: '#d98b2b',
+                            success: '#3b8a5b'
+                        }
+                    },
+                    fontFamily: {
+                        arabic: ['Cairo', 'sans-serif'],
+                        english: ['Inter', 'sans-serif']
                     }
                 }
             }
         }
     </script>
+
     <style>
-        /* Custom Scrollbar */
+        :root {
+            --primary: #2b4c40;
+            --bg-color: #f5f2eb;
+            --text-main: #1a2622;
+        }
+
+        html[dir="rtl"] body { font-family: 'Cairo', sans-serif; }
+        html[dir="ltr"] body { font-family: 'Inter', sans-serif; }
+
+        body { background-color: var(--bg-color); color: var(--text-main); overflow: hidden; }
+
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+        .view-section, .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .view-section.active, .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 8px; padding: 12px 20px; display: flex; align-items: center; gap: 12px; pointer-events: auto; animation: slideUp 0.3s ease forwards; min-width: 300px; border-right: 4px solid var(--primary); }
+        html[dir="ltr"] .toast { border-right: none; border-left: 4px solid var(--primary); }
+        .toast.error { border-color: #c94a4a; }
+        .toast.success { border-color: #3b8a5b; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .neo-input { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; background-color: #f9fafb; transition: all 0.2s; }
+        .neo-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(43, 76, 64, 0.2); }
+
+        .neo-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .neo-btn-primary { background-color: var(--primary); color: white; }
+        .neo-btn-primary:hover { background-color: #1a3028; }
+        .neo-btn-secondary { background-color: #e3dacc; color: var(--primary); }
+        .neo-btn-secondary:hover { background-color: #d1c5b4; }
+        .neo-btn-danger { background-color: #fee2e2; color: #c94a4a; }
         
-        /* Timeline CSS */
-        .timeline-container { position: relative; padding-right: 2rem; }
-        .timeline-container::before {
-            content: ''; position: absolute; right: 0.5rem; top: 0; bottom: 0; width: 2px; background: #e2e8f0;
-        }
-        .timeline-item { position: relative; margin-bottom: 2rem; }
-        .timeline-item::before {
-            content: ''; position: absolute; right: -2rem; top: 0.25rem; width: 1rem; height: 1rem; border-radius: 50%; background: #0f766e; border: 3px solid #fff; box-shadow: 0 0 0 1px #e2e8f0;
+        /* Custom file input styling */
+        input[type="file"]::file-selector-button {
+            background-color: var(--primary);
+            color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.375rem; cursor: pointer; margin-inline-end: 1rem; font-family: inherit; font-size: 0.875rem;
         }
 
-        /* Clean SaaS borders and typography */
-        body { color: #1e293b; }
-        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .tab-btn { position: relative; }
+        .tab-btn.active { color: var(--primary); font-weight: bold; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background-color: var(--primary); }
     </style>
 </head>
-<body class="bg-bgLight font-sans h-screen flex overflow-hidden selection:bg-teal-100 selection:text-teal-900">
+<body class="flex h-screen text-neo-charcoal antialiased">
+
+    <!-- Global Data Lists for Autocomplete -->
+    <datalist id="pediatric-diagnoses">
+        <option value="Upper Respiratory Tract Infection (URTI)">
+        <option value="Acute Otitis Media (AOM)">
+        <option value="Acute Gastroenteritis">
+        <option value="Bronchiolitis">
+        <option value="Bronchial Asthma">
+        <option value="Neonatal Jaundice">
+        <option value="Tonsillopharyngitis">
+        <option value="Atopic Dermatitis (Eczema)">
+        <option value="Urinary Tract Infection (UTI)">
+        <option value="Viral Exanthem (Roseola, etc.)">
+        <option value="Iron Deficiency Anemia">
+        <option value="Gastroesophageal Reflux (GERD)">
+    </datalist>
+
+    <datalist id="pediatric-medications">
+        <option value="Paracetamol (120mg/5ml) Suspension">
+        <option value="Paracetamol (250mg/5ml) Suspension">
+        <option value="Ibuprofen (100mg/5ml) Suspension">
+        <option value="Amoxicillin (250mg/5ml) Suspension">
+        <option value="Amoxicillin/Clavulanate (457mg/5ml) Suspension">
+        <option value="Azithromycin (200mg/5ml) Suspension">
+        <option value="Cetirizine (5mg/5ml) Syrup">
+        <option value="Loratadine (5mg/5ml) Syrup">
+        <option value="Oral Rehydration Salts (ORS) Sachet">
+        <option value="Salbutamol (Ventolin) Nebules">
+        <option value="Budesonide (Pulmicort) Nebules">
+        <option value="Vitamin D3 Drops (400 IU/drop)">
+    </datalist>
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-dark text-slate-300 flex flex-col shadow-2xl z-20 overflow-y-auto">
-        <div class="p-6 flex items-center gap-3 border-b border-slate-700/50 sticky top-0 bg-dark z-10">
-            <i class="fas fa-notes-medical text-3xl text-accent"></i>
-            <div>
-                <h1 class="text-xl font-bold tracking-widest text-white">NEO</h1>
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Medical Record</p>
+    <aside id="sidebar" class="w-64 bg-neo-green text-white flex flex-col transition-all duration-300 z-20 shadow-xl hidden md:flex">
+        <div class="p-6 flex items-center justify-center border-b border-neo-green-light/30">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold tracking-wider">NEO <i class="fa-solid fa-face-smile text-neo-beige"></i></h1>
+                <p class="text-xs text-neo-beige mt-1 tracking-widest uppercase">New Era Of Care</p>
+                <div class="text-[10px] mt-2 opacity-80 border-t border-neo-green-light/30 pt-2">د. أحمد ماضي | Pediatrics</div>
             </div>
         </div>
-        
-        <div class="p-4">
-            <div class="relative">
-                <input type="text" placeholder="بحث مريض (الاسم، ID).." class="w-full bg-slate-800 text-white placeholder-slate-500 rounded-lg px-4 py-2 border border-slate-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-sm transition-all">
-                <i class="fas fa-search absolute left-3 top-3 text-slate-500"></i>
-            </div>
-        </div>
-
-        <nav class="flex-1 px-3 space-y-1 mt-2 pb-6 text-sm font-semibold overflow-y-auto">
-            <a href="#" id="nav-dashboard" onclick="switchMainView('dashboard', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
-                <i class="fas fa-home w-5 text-center"></i> لوحة التحكم (Dashboard)
-            </a>
-            <a href="#" id="nav-records" onclick="switchMainView('patient', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 bg-primary/20 border border-primary/30 text-white rounded-lg transition">
-                <i class="fas fa-user-injured w-5 text-center text-accent"></i> الملفات الطبية (Records)
-            </a>
-            <a href="#" onclick="showToast('سيتم تفعيل قسم المواعيد قريباً')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
-                <i class="fas fa-calendar-check w-5 text-center"></i> المواعيد (Appointments)
-            </a>
-            <a href="#" onclick="showToast('سيتم تفعيل سجل الزيارات قريباً')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
-                <i class="fas fa-stethoscope w-5 text-center"></i> الزيارات (Visits)
-            </a>
-            
-            <div class="pt-4 pb-1 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Clinical Modules</div>
-            
-            <a href="#" onclick="showToast('قسم التحاليل المخبرية قيد التطوير')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
-                <i class="fas fa-vials w-5 text-center"></i> التحاليل (Labs)
-            </a>
-            <a href="#" onclick="showToast('مستعرض الأشعات قيد التطوير')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
-                <i class="fas fa-x-ray w-5 text-center"></i> الأشعات (Imaging)
-            </a>
-            <a href="#" onclick="showToast('قاعدة بيانات الأدوية قيد التطوير')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
-                <i class="fas fa-pills w-5 text-center"></i> الأدوية (Medications)
-            </a>
-            <a href="#" onclick="switchMainView('patient', document.getElementById('nav-records')); switchTab('growth');" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
-                <i class="fas fa-chart-line w-5 text-center"></i> النمو (Growth)
-            </a>
-            <a href="#" onclick="showToast('سجل التطعيمات الذكي قيد التطوير')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
-                <i class="fas fa-shield-virus w-5 text-center"></i> التطعيمات (Vaccines)
-            </a>
-
-            <div class="pt-4 pb-1 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">System</div>
-
-            <a href="#" onclick="showToast('لوحة التحليلات الإحصائية قيد التطوير')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
-                <i class="fas fa-chart-pie w-5 text-center"></i> التحليلات (Analytics)
-            </a>
-            <a href="#" onclick="showToast('إعدادات النظام قيد التطوير')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 border border-transparent hover:bg-slate-800 hover:text-white transition">
-                <i class="fas fa-cog w-5 text-center"></i> الإعدادات (Settings)
-            </a>
-        </nav>
-        
-        <div class="p-4 border-t border-slate-700/50 text-xs text-slate-400 bg-slate-900/50">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold">د.أ</div>
-                <div>
-                    <p class="text-white font-bold">د. أحمد</p>
-                    <p class="text-[10px]">Clinic Admin</p>
-                </div>
-            </div>
-        </div>
+        <div class="flex-1 overflow-y-auto py-4 px-3 space-y-1" id="sidebar-menu"></div>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-bgLight relative">
-        
-        <!-- 1. MAIN DASHBOARD VIEW -->
-        <div id="view-dashboard" class="main-view hidden flex-1 overflow-y-auto p-8 bg-slate-50/50">
-            <div class="max-w-7xl mx-auto animate-fade-in">
-                <h2 class="text-2xl font-black text-dark mb-6 flex items-center gap-3"><i class="fas fa-home text-primary"></i> لوحة التحكم الرئيسية (Clinic Overview)</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 border-b-4 border-b-primary hover:shadow-md transition cursor-pointer" onclick="switchMainView('patient', document.getElementById('nav-records'))">
-                        <div class="w-14 h-14 rounded-full bg-teal-50 flex items-center justify-center text-primary text-2xl"><i class="fas fa-users"></i></div>
-                        <div>
-                            <p class="text-xs text-slate-400 font-bold uppercase mb-1">إجمالي المرضى</p>
-                            <h3 class="text-3xl font-black text-dark">1,248</h3>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 border-b-4 border-b-warning hover:shadow-md transition cursor-pointer" onclick="showToast('سيتم فتح جدول مواعيد اليوم')">
-                        <div class="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center text-warning text-2xl"><i class="fas fa-calendar-day"></i></div>
-                        <div>
-                            <p class="text-xs text-slate-400 font-bold uppercase mb-1">مواعيد اليوم</p>
-                            <h3 class="text-3xl font-black text-dark">24</h3>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 border-b-4 border-b-alert hover:shadow-md transition">
-                        <div class="w-14 h-14 rounded-full bg-rose-50 flex items-center justify-center text-alert text-2xl"><i class="fas fa-exclamation-circle"></i></div>
-                        <div>
-                            <p class="text-xs text-slate-400 font-bold uppercase mb-1">متابعات متأخرة</p>
-                            <h3 class="text-3xl font-black text-dark">5</h3>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 border-b-4 border-b-success hover:shadow-md transition">
-                        <div class="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center text-success text-2xl"><i class="fas fa-flask"></i></div>
-                        <div>
-                            <p class="text-xs text-slate-400 font-bold uppercase mb-1">نتائج تحاليل جديدة</p>
-                            <h3 class="text-3xl font-black text-dark">8</h3>
-                        </div>
-                    </div>
+    <main class="flex-1 flex flex-col min-w-0 bg-neo-ivory relative">
+        <!-- Topbar -->
+        <header id="topbar" class="h-16 bg-white shadow-sm flex items-center justify-between px-6 z-10 border-b border-gray-200">
+            <div class="flex items-center gap-4">
+                <button class="md:hidden text-neo-green text-xl hover:bg-gray-100 p-2 rounded" onclick="toggleMobileSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <div class="relative hidden sm:block w-64">
+                    <i class="fa-solid fa-search absolute rtl:right-3 ltr:left-3 top-3 text-gray-400"></i>
+                    <input type="text" class="w-full bg-gray-100 border-none rounded-full py-2 rtl:pr-10 ltr:pl-10 rtl:pl-4 ltr:pr-4 focus:ring-2 focus:ring-neo-green text-sm" placeholder="Search Patients...">
                 </div>
-
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-                    <h3 class="text-lg font-black text-dark mb-4 border-b border-slate-100 pb-3 flex justify-between items-center">
-                        <span>الزيارات الأخيرة (Recent Visits)</span>
-                        <button onclick="switchMainView('patient', document.getElementById('nav-records'))" class="text-sm font-bold text-primary hover:underline">عرض الكل</button>
-                    </h3>
-                    <div class="text-center py-10 text-slate-500">
-                        <i class="fas fa-folder-open text-4xl mb-3 text-slate-300"></i>
-                        <p class="font-semibold mb-4">أنت الآن في النسخة التجريبية. يمكنك استعراض ملف المريض (محمد أحمد).</p>
-                        <button onclick="switchMainView('patient', document.getElementById('nav-records'))" class="bg-primary text-white px-5 py-2.5 rounded-lg font-bold hover:bg-teal-700 shadow-md shadow-teal-500/30 transition flex items-center gap-2 mx-auto">
-                            <i class="fas fa-user-injured"></i> فتح الملف الطبي المتاح
-                        </button>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="App.toggleLang()" class="text-sm font-semibold text-neo-green hover:bg-neo-beige/30 py-1 px-3 rounded transition" id="lang-toggle">EN</button>
+                <div class="h-8 w-px bg-gray-300 mx-2"></div>
+                <div class="flex items-center gap-3 cursor-pointer">
+                    <div class="w-9 h-9 rounded-full bg-neo-green text-white flex items-center justify-center font-bold text-sm">د.أ</div>
+                    <div class="hidden md:block">
+                        <div class="text-sm font-bold text-neo-charcoal">د. أحمد ماضي</div>
+                        <div class="text-xs text-gray-500">Pediatrician</div>
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <!-- 2. PATIENT RECORD VIEW -->
-        <div id="view-patient" class="main-view flex-1 flex flex-col h-full overflow-hidden animate-fade-in">
-            <!-- Persistent Patient Header (Quick Info Bar) -->
-            <header class="glass-panel border-b border-slate-200 px-6 py-4 z-10 flex justify-between items-start sticky top-0 shadow-sm">
-        <!-- Scrollable Content Area -->
-        <div class="flex-1 overflow-y-auto p-6">
+        <!-- Dynamic View Container -->
+        <div id="app-content" class="flex-1 overflow-y-auto p-4 md:p-6 pb-20 relative">
             
-            <!-- 1. Overview Tab -->
-            <div id="content-overview" class="tab-content">
-                
-                <!-- Top Summary Cards -->
-                <div class="grid grid-cols-5 gap-4 mb-6">
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center">
-                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">الوزن الحالي</span>
-                        <div class="text-2xl font-black text-dark" dir="ltr">18.2 <span class="text-sm text-slate-400 font-semibold">kg</span></div>
-                        <span class="text-[10px] text-green-600 font-bold mt-1 bg-green-50 px-1.5 rounded"><i class="fas fa-arrow-up"></i> 50th pctl</span>
+            <!-- Dashboard View -->
+            <div id="view-dashboard" class="view-section">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-neo-green" data-i18n="dashboard">Dashboard</h2>
+                        <p class="text-gray-500 text-sm mt-1" id="current-date-display"></p>
                     </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center">
-                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">الطول الحالي</span>
-                        <div class="text-2xl font-black text-dark" dir="ltr">108 <span class="text-sm text-slate-400 font-semibold">cm</span></div>
-                        <span class="text-[10px] text-slate-500 font-bold mt-1">Normal</span>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center">
-                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">محيط الرأس (HC)</span>
-                        <div class="text-2xl font-black text-dark" dir="ltr">51.2 <span class="text-sm text-slate-400 font-semibold">cm</span></div>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center">
-                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">مؤشر الكتلة (BMI)</span>
-                        <div class="text-2xl font-black text-dark" dir="ltr">15.6</div>
-                        <span class="text-[10px] text-green-600 font-bold mt-1">Healthy Weight</span>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center">
-                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">التطعيمات</span>
-                        <div class="text-lg font-black text-primary mt-1">مكتملة</div>
-                        <span class="text-[10px] text-slate-500 mt-1">Up to date</span>
-                    </div>
+                    <button class="neo-btn neo-btn-primary" onclick="App.navigate('add-patient')"><i class="fa-solid fa-plus"></i> <span data-i18n="newPatient">New Patient</span></button>
                 </div>
-
-                <div class="grid grid-cols-3 gap-6">
-                    <!-- Left Column -->
-                    <div class="col-span-2 space-y-6">
-                        <!-- Active Diagnoses -->
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                            <h3 class="text-sm font-black text-dark mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i class="fas fa-stethoscope text-primary"></i> Active Problems</h3>
-                            <ul class="space-y-3">
-                                <li class="flex justify-between items-center p-3 bg-slate-50 border border-slate-100 rounded-lg">
-                                    <div>
-                                        <span class="font-bold text-dark block text-left" dir="ltr">Recurrent Wheeze / Asthma</span>
-                                        <span class="text-xs text-slate-500">منذ: 15/02/2025 | يتم السيطرة عليها جزئياً</span>
-                                    </div>
-                                    <span class="bg-warning/10 text-warning border border-warning/20 text-xs px-2 py-1 rounded-md font-bold">Chronic</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <!-- Current Medications -->
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                            <h3 class="text-sm font-black text-dark mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i class="fas fa-pills text-primary"></i> Active Medications</h3>
-                            <div class="overflow-x-auto text-left" dir="ltr">
-                                <table class="w-full text-sm">
-                                    <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
-                                        <tr>
-                                            <th class="p-3 rounded-tl-lg">Drug (Generic/Brand)</th>
-                                            <th class="p-3">Dose</th>
-                                            <th class="p-3">Frequency</th>
-                                            <th class="p-3 rounded-tr-lg">Start Date</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100">
-                                        <tr>
-                                            <td class="p-3">
-                                                <span class="font-bold text-dark block">Salbutamol Inhaler (100mcg)</span>
-                                                <span class="text-xs text-slate-400">Bronchodilator</span>
-                                            </td>
-                                            <td class="p-3 font-semibold text-slate-700">2 Puffs</td>
-                                            <td class="p-3 font-semibold text-slate-700">PRN</td>
-                                            <td class="p-3 text-slate-500">12/09/2026</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-3">
-                                                <span class="font-bold text-dark block">Fluticasone (Flixotide)</span>
-                                                <span class="text-xs text-slate-400">ICS</span>
-                                            </td>
-                                            <td class="p-3 font-semibold text-slate-700">125 mcg</td>
-                                            <td class="p-3 font-semibold text-slate-700">BID</td>
-                                            <td class="p-3 text-slate-500">15/02/2025</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <!-- Clinical Calculator Prototype -->
-                        <div class="bg-gradient-to-r from-teal-50 to-white p-5 rounded-xl border border-teal-100 shadow-sm border-r-4 border-r-primary">
-                            <h3 class="text-sm font-black text-primary mb-1 flex items-center gap-2"><i class="fas fa-calculator"></i> حاسبة الجرعات السريعة (Dose Calculator)</h3>
-                            <p class="text-xs text-slate-500 mb-4">يعتمد الحساب على الوزن المسجل في آخر زيارة: <strong id="calc-weight" class="text-dark">18.2 kg</strong></p>
-                            
-                            <div class="flex gap-3 items-end">
-                                <div class="flex-1">
-                                    <label class="block text-xs font-bold text-slate-700 mb-1.5">اختر الدواء (Drug & Concentration)</label>
-                                    <select id="med-select" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm text-left font-semibold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition" dir="ltr">
-                                        <option value="15" data-conc="250" data-vol="5">Paracetamol (250mg/5ml) - Dose: 15mg/kg</option>
-                                        <option value="10" data-conc="100" data-vol="5">Ibuprofen (100mg/5ml) - Dose: 10mg/kg</option>
-                                        <option value="10" data-conc="200" data-vol="5">Azithromycin (200mg/5ml) - Dose: 10mg/kg</option>
-                                    </select>
-                                </div>
-                                <button onclick="calculateDose()" class="bg-dark text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-slate-700 transition shadow-sm">احسب الجرعة</button>
-                            </div>
-                            <div id="dose-result" class="mt-4 p-3 bg-white border border-teal-100 rounded-lg text-center text-lg font-black text-primary hidden shadow-sm">
-                                <!-- Result will appear here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column -->
-                    <div class="space-y-6">
-                        <!-- Family & Social -->
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                            <h3 class="text-sm font-black text-dark mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i class="fas fa-users text-primary"></i> Family Profile</h3>
-                            <ul class="text-sm space-y-3">
-                                <li class="flex justify-between items-center"><span class="font-bold text-slate-500">الأب:</span> <span class="text-dark font-semibold">أحمد محمود (مهندس)</span></li>
-                                <li class="flex justify-between items-center"><span class="font-bold text-slate-500">الأم:</span> <span class="text-dark font-semibold">سارة علي (معلمة)</span></li>
-                                <li class="flex justify-between items-center"><span class="font-bold text-slate-500">صلة قرابة:</span> <span class="text-dark font-semibold">لا يوجد</span></li>
-                                <li class="flex justify-between items-center"><span class="font-bold text-slate-500">Family Hx:</span> <span class="text-alert font-bold" dir="ltr">Asthma (Mother)</span></li>
-                                <li class="flex justify-between items-center"><span class="font-bold text-slate-500">تعرض للتدخين:</span> <span class="text-alert font-bold">الأب مدخن</span></li>
-                                <li class="flex justify-between items-center"><span class="font-bold text-slate-500">المدرسة/الحضانة:</span> <span class="text-dark font-semibold">حضانة الأمل</span></li>
-                            </ul>
-                        </div>
+                <!-- Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div><div class="text-gray-500 text-sm mb-1" data-i18n="totalPatients">Total Patients</div><div class="text-3xl font-bold text-neo-green" id="stat-patients">0</div></div>
+                        <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 text-xl"><i class="fa-solid fa-children"></i></div>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. Timeline Tab -->
-            <div id="content-timeline" class="tab-content hidden max-w-4xl mx-auto">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-xl font-black text-dark">Medical Timeline</h2>
-                    <div class="flex gap-2">
-                        <button class="bg-white border border-slate-200 text-slate-600 font-semibold px-4 py-2 text-sm rounded-lg hover:bg-slate-50 shadow-sm transition"><i class="fas fa-filter mr-1"></i> تصفية (Filter)</button>
-                    </div>
+            <!-- Patients Directory -->
+            <div id="view-patients" class="view-section h-full flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-neo-green" data-i18n="patients">Patients Directory</h2>
+                    <button class="neo-btn neo-btn-primary" onclick="App.navigate('add-patient')"><i class="fa-solid fa-plus"></i> <span data-i18n="newPatient">New Patient</span></button>
                 </div>
-
-                <div class="timeline-container text-left" dir="ltr">
-                    
-                    <!-- Timeline Item 1 -->
-                    <div class="timeline-item bg-white p-6 rounded-xl border border-slate-200 shadow-sm ml-8 transition hover:shadow-md">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <span class="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] px-2.5 py-1 rounded-md font-extrabold uppercase tracking-widest">Follow-up Visit</span>
-                                <h3 class="text-lg font-black text-dark mt-2">Improved after URTI Treatment</h3>
-                            </div>
-                            <span class="text-slate-400 text-sm font-bold flex items-center gap-1"><i class="far fa-calendar-alt"></i> 17 Sep 2026</span>
-                        </div>
-                        <div class="text-sm text-slate-600 mb-4 space-y-1">
-                            <p><span class="font-bold text-slate-800">Subjective:</span> Mother reports fever subsided. Cough improved.</p>
-                            <p><span class="font-bold text-slate-800">O/E:</span> Chest clear bilaterally. Throat normal.</p>
-                        </div>
-                        <div class="bg-slate-50 p-3 rounded-lg text-sm border-l-4 border-l-success flex items-start gap-2">
-                            <i class="fas fa-check-circle text-success mt-0.5"></i>
-                            <div>
-                                <span class="font-bold text-dark block">Plan:</span> 
-                                <span class="text-slate-600">Continue symptomatic treatment if needed. Stop antibiotic.</span>
-                            </div>
-                        </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex-1 overflow-hidden flex flex-col">
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-sm text-left rtl:text-right" id="patients-table">
+                            <thead class="bg-gray-50 text-gray-500 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-4 font-semibold">ID</th><th class="px-6 py-4 font-semibold">Name</th><th class="px-6 py-4 font-semibold">Age</th>
+                                    <th class="px-6 py-4 font-semibold">Guardian / Phone</th><th class="px-6 py-4 font-semibold text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100" id="patients-list-body"></tbody>
+                        </table>
                     </div>
-
-                    <!-- Timeline Item 2 -->
-                    <div class="timeline-item bg-white p-6 rounded-xl border border-slate-200 shadow-sm ml-8 transition hover:shadow-md">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <span class="bg-rose-50 text-alert border border-rose-200 text-[10px] px-2.5 py-1 rounded-md font-extrabold uppercase tracking-widest">Sick Visit</span>
-                                <h3 class="text-lg font-black text-dark mt-2">High Fever & Persistent Cough</h3>
-                            </div>
-                            <span class="text-slate-400 text-sm font-bold flex items-center gap-1"><i class="far fa-calendar-alt"></i> 12 Sep 2026</span>
-                        </div>
-                        
-                        <!-- Vitals mini-cards -->
-                        <div class="flex gap-3 mb-4">
-                            <div class="bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-lg text-center text-xs"><span class="text-slate-400 block mb-0.5">Weight</span><span class="font-bold text-dark">18.2 kg</span></div>
-                            <div class="bg-rose-50 border border-rose-100 px-3 py-1.5 rounded-lg text-center text-xs"><span class="text-rose-400 block mb-0.5">Temp</span><span class="font-bold text-alert">38.5 °C</span></div>
-                            <div class="bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-lg text-center text-xs"><span class="text-slate-400 block mb-0.5">SpO2</span><span class="font-bold text-dark">97%</span></div>
-                        </div>
-
-                        <div class="text-sm text-slate-600 mb-4 border-l-2 border-slate-200 pl-3">
-                            <p><span class="font-bold text-slate-800">Diagnosis:</span> Upper Respiratory Tract Infection (URTI) with bronchospasm.</p>
-                        </div>
-                        
-                        <!-- Prescription Block -->
-                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 text-sm mb-3">
-                            <span class="font-black text-dark block mb-2 flex items-center gap-2"><i class="fas fa-prescription text-primary"></i> Prescription:</span>
-                            <ul class="list-disc pl-5 space-y-1 text-slate-700 font-medium">
-                                <li>Azithromycin 200mg/5ml <span class="text-slate-400 font-normal">— 4.5 ml once daily for 3 days</span></li>
-                                <li>Paracetamol 250mg/5ml <span class="text-slate-400 font-normal">— 5.5 ml PRN for fever</span></li>
-                                <li>Salbutamol Inhaler <span class="text-slate-400 font-normal">— 2 Puffs PRN</span></li>
-                            </ul>
-                        </div>
-
-                        <!-- Attachments -->
-                        <div class="bg-teal-50/50 border border-teal-100 p-3 rounded-lg text-sm flex justify-between items-center transition hover:bg-teal-50">
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-file-pdf text-primary text-lg"></i>
-                                <span class="font-bold text-primary">CBC Lab Result</span>
-                            </div>
-                            <button class="text-primary font-bold text-xs hover:underline">View Document</button>
-                        </div>
-                    </div>
-
-                    <!-- Timeline Item 2 -->
-                    <div class="timeline-item bg-white p-5 rounded-xl shadow-sm border border-gray-100 ml-8">
-                        <div class="flex justify-between items-start mb-3">
-                            <div>
-                                <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider">Sick Visit</span>
-                                <h3 class="text-lg font-bold text-gray-800 mt-2">High Fever & Cough</h3>
-                            </div>
-                            <span class="text-gray-500 text-sm font-semibold"><i class="far fa-calendar-alt"></i> 12/09/2026</span>
-                        </div>
-                        <div class="grid grid-cols-4 gap-2 mb-3">
-                            <div class="bg-gray-50 p-2 rounded text-center text-xs"><span class="block text-gray-500">Wt</span><span class="font-bold">18.2 kg</span></div>
-                            <div class="bg-gray-50 p-2 rounded text-center text-xs"><span class="block text-gray-500">Temp</span><span class="font-bold text-red-500">38.5 °C</span></div>
-                        </div>
-                        <div class="text-sm text-gray-600 mb-3">
-                            <p><span class="font-bold">Diagnosis:</span> Upper Respiratory Tract Infection (URTI) with bronchospasm.</p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded text-sm mb-2">
-                            <span class="font-bold block mb-1"><i class="fas fa-prescription text-primary"></i> Prescription:</span>
-                            <ul class="list-disc pl-5">
-                                <li>Azithromycin 200mg/5ml - 4.5 ml once daily for 3 days</li>
-                                <li>Paracetamol 250mg/5ml - 5.5 ml PRN for fever</li>
-                            </ul>
-                        </div>
-                        <div class="bg-blue-50 p-2 rounded text-sm flex justify-between items-center">
-                            <span><i class="fas fa-file-medical text-blue-500 mr-2"></i> CBC Lab Result Uploaded</span>
-                            <button class="text-blue-600 text-xs hover:underline">View PDF</button>
-                        </div>
-                    </div>
-
-                     <!-- Timeline Item 3 -->
-                     <div class="timeline-item bg-white p-5 rounded-xl shadow-sm border border-gray-100 ml-8">
-                        <div class="flex justify-between items-start mb-3">
-                            <div>
-                                <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider">Well Child Visit</span>
-                                <h3 class="text-lg font-bold text-gray-800 mt-2">Routine Checkup & Vaccination</h3>
-                            </div>
-                            <span class="text-gray-500 text-sm font-semibold"><i class="far fa-calendar-alt"></i> 10/01/2026</span>
-                        </div>
-                        <div class="text-sm text-gray-600 mb-3">
-                            <p><span class="font-bold">Growth:</span> Wt: 16.4 kg (50th percentile). Normal growth velocity.</p>
-                            <p><span class="font-bold">Vaccine Given:</span> MMR Booster.</p>
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
-            <!-- 3. Growth Charts Tab -->
-            <div id="content-growth" class="tab-content hidden">
-                <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800">Growth Charts (WHO Standards)</h2>
-                        <select class="border p-2 rounded bg-gray-50 text-sm" dir="ltr">
-                            <option>Weight-for-Age (Boys)</option>
-                            <option>Length/Height-for-Age</option>
-                            <option>BMI-for-Age</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Canvas for Chart.js -->
-                    <div class="w-full h-[400px]" dir="ltr">
-                    <div class="mt-6 text-sm text-slate-600 bg-white border border-slate-200 p-5 rounded-xl shadow-sm flex gap-3">
-                        <i class="fas fa-lightbulb text-warning text-lg mt-0.5"></i> 
+            <!-- Add Patient View -->
+            <div id="view-add-patient" class="view-section">
+                <div class="flex items-center gap-4 mb-6">
+                    <button class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500 hover:text-neo-green" onclick="App.navigate('patients')"><i class="fa-solid fa-arrow-right rtl:rotate-0 ltr:rotate-180"></i></button>
+                    <h2 class="text-2xl font-bold text-neo-green" data-i18n="newPatient">Register New Patient</h2>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <form id="add-patient-form" onsubmit="PatientsModule.savePatient(event)">
+                        <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div><label class="block text-sm mb-1">Full Name (Arabic) <span class="text-red-500">*</span></label><input type="text" id="p-name-ar" class="neo-input" required></div>
+                            <div><label class="block text-sm mb-1">Date of Birth <span class="text-red-500">*</span></label><input type="date" id="p-dob" class="neo-input" required></div>
+                            <div><label class="block text-sm mb-1">Sex <span class="text-red-500">*</span></label>
+                                <select id="p-sex" class="neo-input" required><option value="">Select...</option><option value="Male">Male</option><option value="Female">Female</option></select>
+                            </div>
+                            <div><label class="block text-sm mb-1">Guardian Phone <span class="text-red-500">*</span></label><input type="tel" id="g-phone" class="neo-input" required dir="ltr"></div>
+                        </div>
+                        <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t"><button type="submit" class="neo-btn neo-btn-primary"><i class="fa-solid fa-save"></i> Save</button></div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Patient Profile View -->
+            <div id="view-patient-profile" class="view-section h-full flex flex-col">
+                <!-- Sticky Patient Header -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-10">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-full bg-neo-beige flex items-center justify-center text-3xl text-white shadow-inner" id="profile-avatar"></div>
                         <div>
-                            <strong class="text-dark block mb-1">Clinical Insight:</strong> 
-                            قراءة الوزن الحالية (18.2 كجم) تقع بين Percentile 50 و 75. مؤشر كتلة الجسم (BMI) 15.6، ومعدل النمو (Growth Velocity) طبيعي جداً مقارنة بالزيارة السابقة منذ 6 أشهر (16.4 كجم).
+                            <h2 class="text-xl font-bold text-neo-charcoal flex items-center gap-2" id="profile-name"></h2>
+                            <div class="text-sm text-gray-500 flex items-center gap-3 mt-1 flex-wrap">
+                                <span id="profile-id" class="bg-gray-100 px-2 py-0.5 rounded text-xs font-mono"></span>
+                                <span><i class="fa-solid fa-calendar-day text-neo-beige"></i> <span id="profile-age"></span></span>
+                                <span><i class="fa-solid fa-weight-scale text-neo-beige"></i> <span id="profile-weight"></span></span>
+                            </div>
                         </div>
+                    </div>
+                    <div class="flex gap-2 flex-wrap">
+                        <button class="neo-btn neo-btn-secondary text-sm py-1.5" onclick="ClinicalModule.openTriage()"><i class="fa-solid fa-heart-pulse"></i> Vitals</button>
+                        <button class="neo-btn neo-btn-primary text-sm py-1.5" onclick="App.navigate('consultation')"><i class="fa-solid fa-stethoscope"></i> Consultation</button>
+                    </div>
+                </div>
+
+                <!-- Profile Tabs Navigation -->
+                <div class="flex border-b border-gray-200 mb-4 overflow-x-auto hide-scrollbar">
+                    <button class="px-4 py-3 tab-btn active whitespace-nowrap" onclick="PatientsModule.switchTab('timeline', this)">Timeline</button>
+                    <button class="px-4 py-3 tab-btn text-gray-500 hover:text-neo-green whitespace-nowrap" onclick="PatientsModule.switchTab('investigations', this)">Investigations & Media</button>
+                    <button class="px-4 py-3 tab-btn text-gray-500 hover:text-neo-green whitespace-nowrap" onclick="PatientsModule.switchTab('vaccinations', this)">Vaccinations</button>
+                </div>
+
+                <!-- Tab Content: Timeline -->
+                <div class="tab-content active flex-1 overflow-y-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6" id="tab-timeline">
+                    <div id="profile-timeline"></div>
+                </div>
+
+                <!-- Tab Content: Investigations & Media (NEW) -->
+                <div class="tab-content flex-1 overflow-y-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6" id="tab-investigations">
+                    <div class="flex justify-between items-center mb-6 border-b pb-4">
+                        <h3 class="text-lg font-bold text-neo-green"><i class="fa-solid fa-flask text-neo-beige"></i> Labs & X-Rays</h3>
+                        <div class="flex gap-2">
+                            <input type="file" id="upload-media" class="hidden" accept="image/*,application/pdf" onchange="ClinicalModule.handleMediaUpload(event)">
+                            <button class="neo-btn neo-btn-primary text-sm" onclick="document.getElementById('upload-media').click()">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Upload Document
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="media-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Tab Content: Vaccinations (NEW) -->
+                <div class="tab-content flex-1 overflow-y-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6" id="tab-vaccinations">
+                    <h3 class="text-lg font-bold text-neo-green mb-4 border-b pb-2"><i class="fa-solid fa-syringe text-neo-beige"></i> Immunization Schedule</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left rtl:text-right border border-gray-100">
+                            <thead class="bg-gray-50 text-gray-600">
+                                <tr><th class="px-4 py-3 border-b">Age</th><th class="px-4 py-3 border-b">Vaccines</th><th class="px-4 py-3 border-b text-center">Status</th></tr>
+                            </thead>
+                            <tbody id="vaccines-table-body" class="divide-y divide-gray-100">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- 4. NICU/Birth History Tab -->
-            <div id="content-nicu" class="tab-content hidden">
-                <div class="max-w-4xl mx-auto space-y-6">
-                    <h2 class="text-xl font-black text-dark border-b border-slate-200 pb-3">Neonatal & Developmental History</h2>
-                    
-                    <div class="grid grid-cols-2 gap-6">
-                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm text-left" dir="ltr">
-                            <h3 class="text-sm font-black text-primary mb-4 pb-2 border-b border-slate-100 uppercase tracking-widest">Birth Details</h3>
-                            <ul class="space-y-3 text-sm">
-                                <li class="flex justify-between items-center border-b border-slate-50 pb-2">
-                                    <span class="text-slate-500 font-semibold">Gestational Age</span> <span class="font-black text-dark bg-slate-100 px-2 py-0.5 rounded">36 Weeks (Preterm)</span>
-                                </li>
-                                <li class="flex justify-between items-center border-b border-slate-50 pb-2">
-                                    <span class="text-slate-500 font-semibold">Mode of Delivery</span> <span class="font-bold text-dark">CS (Elective)</span>
-                                </li>
-                                <li class="flex justify-between items-center border-b border-slate-50 pb-2">
-                                    <span class="text-slate-500 font-semibold">Birth Weight</span> <span class="font-bold text-dark">2.4 kg</span>
-                                </li>
-                                <li class="flex justify-between items-center pb-1">
-                                    <span class="text-slate-500 font-semibold">Apgar Score</span> <span class="font-bold text-dark">7 (1m) → 9 (5m)</span>
-                                </li>
-                            </ul>
+            <!-- Consultation View (Enhanced with Lists and Rx Builder) -->
+            <div id="view-consultation" class="view-section">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-neo-green flex items-center gap-2"><i class="fa-solid fa-stethoscope text-neo-beige"></i> New Consultation</h2>
+                    <div class="text-sm font-mono bg-white px-3 py-1 border rounded shadow-sm" id="consult-patient-name"></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left: Clinical Notes & Diagnosis -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                            <label class="block font-bold text-neo-green mb-2">Chief Complaint</label>
+                            <input type="text" id="consult-cc" class="neo-input" placeholder="e.g., Fever for 3 days">
+                            
+                            <label class="block font-bold text-neo-green mb-2 mt-4">Diagnosis <i class="fa-solid fa-magnifying-glass text-gray-400 text-xs mx-1"></i></label>
+                            <!-- Searchable Datalist for Diagnosis -->
+                            <input type="text" list="pediatric-diagnoses" id="consult-diag" class="neo-input border-neo-green/50 focus:border-neo-green focus:ring-1 focus:ring-neo-green" placeholder="Type or select a diagnosis...">
+                            
+                            <label class="block font-bold text-neo-green mb-2 mt-4">Management Plan</label>
+                            <textarea id="consult-plan" class="neo-input h-16 resize-none" placeholder="Instructions..."></textarea>
                         </div>
 
-                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm text-left" dir="ltr">
-                            <h3 class="text-sm font-black text-primary mb-4 pb-2 border-b border-slate-100 uppercase tracking-widest">NICU Admission</h3>
-                            <ul class="space-y-3 text-sm">
-                                <li class="flex justify-between items-center border-b border-slate-50 pb-2">
-                                    <span class="text-slate-500 font-semibold">Admission Reason</span> <span class="font-bold text-dark">TTN / Prematurity</span>
-                                </li>
-                                <li class="flex justify-between items-center border-b border-slate-50 pb-2">
-                                    <span class="text-slate-500 font-semibold">Duration of Stay</span> <span class="font-bold text-dark">5 Days</span>
-                                </li>
-                                <li class="flex justify-between items-center border-b border-slate-50 pb-2">
-                                    <span class="text-slate-500 font-semibold">Respiratory Support</span> <span class="font-bold text-dark">CPAP (2 Days)</span>
-                                </li>
-                                <li class="flex justify-between items-center pb-1">
-                                    <span class="text-slate-500 font-semibold">Phototherapy</span> <span class="font-bold text-dark">Yes (Day 3-4)</span>
-                                </li>
-                            </ul>
+                        <!-- NEW: Prescription Builder -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                            <h3 class="font-bold text-neo-green border-b pb-2 mb-3"><i class="fa-solid fa-pills text-neo-beige"></i> Prescription (Rx)</h3>
+                            <div class="flex gap-2 items-start mb-4">
+                                <div class="flex-1">
+                                    <input type="text" list="pediatric-medications" id="rx-drug" class="neo-input text-sm" placeholder="Search medication...">
+                                </div>
+                                <div class="w-32">
+                                    <input type="text" id="rx-dose" class="neo-input text-sm" placeholder="e.g., 5ml BID">
+                                </div>
+                                <button class="neo-btn neo-btn-secondary px-3 py-2" onclick="ClinicalModule.addRxItem()"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-2 min-h-[100px] border border-gray-100">
+                                <ul id="rx-list" class="space-y-2 text-sm">
+                                    <li class="text-gray-400 text-center py-4 italic" id="rx-empty">No medications added yet.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Quick Tools -->
+                    <div class="space-y-4">
+                        <!-- Dose Calculator -->
+                        <div class="bg-[#2b4c40] rounded-2xl shadow-lg border border-[#1a3028] p-5 text-white">
+                            <h3 class="font-bold border-b border-white/20 pb-2 mb-3 flex items-center justify-between">
+                                <span><i class="fa-solid fa-calculator text-[#e3dacc]"></i> Dose Calculator</span>
+                            </h3>
+                            <div class="space-y-3 text-sm">
+                                <div><label class="block text-white/80 text-xs mb-1">Weight (kg)</label><input type="number" id="calc-weight" class="w-full bg-white/10 border border-white/20 rounded px-2 py-1.5 text-white" step="0.1"></div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div><label class="block text-white/80 text-xs mb-1">Dose (mg/kg)</label><input type="number" id="calc-dose" class="w-full bg-white/10 border border-white/20 rounded px-2 py-1.5 text-white" step="0.1"></div>
+                                    <div><label class="block text-white/80 text-xs mb-1">Freq (/day)</label>
+                                        <select id="calc-freq" class="w-full bg-[#1a3028] border border-white/20 rounded px-2 py-1.5 text-white"><option value="1">OD</option><option value="2">BID</option><option value="3">TID</option></select>
+                                    </div>
+                                </div>
+                                <div><label class="block text-white/80 text-xs mb-1">Concentration</label>
+                                    <div class="flex items-center gap-1">
+                                        <input type="number" id="calc-conc-mg" class="w-full bg-white/10 border border-white/20 rounded px-2 py-1.5 text-white text-center" placeholder="mg"><span>/</span>
+                                        <input type="number" id="calc-conc-ml" class="w-full bg-white/10 border border-white/20 rounded px-2 py-1.5 text-white text-center" placeholder="ml">
+                                    </div>
+                                </div>
+                                <button class="w-full bg-[#e3dacc] text-[#2b4c40] font-bold py-2 rounded mt-2 hover:bg-white transition" onclick="ClinicalModule.calculateDose()">Calculate</button>
+                                <div id="calc-result" class="hidden mt-3 p-3 bg-white/10 rounded border border-white/20 text-center">
+                                    <div class="text-xl font-bold text-[#e3dacc]" id="calc-result-vol">-- ml</div>
+                                    <div class="text-[10px] text-white/60 mt-1" id="calc-result-mg">-- mg/dose</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                
+                <div class="fixed bottom-0 left-0 md:left-64 right-0 bg-white border-t p-4 px-6 flex justify-end gap-3 z-20">
+                    <button class="neo-btn bg-gray-100 text-gray-700 border" onclick="App.navigate('patient-profile')">Cancel</button>
+                    <button class="neo-btn neo-btn-primary shadow-lg" onclick="ClinicalModule.saveConsultation()"><i class="fa-solid fa-check-double"></i> Complete & Save</button>
+                </div>
             </div>
-        </div> <!-- End of view-patient -->
-        
-        <!-- Custom Toast Notification System -->
-        <div id="toast-msg" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-xl shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-3 translate-y-4">
-            <i class="fas fa-info-circle text-accent text-lg"></i>
-            <span id="toast-text" class="text-sm font-bold tracking-wide"></span>
+
         </div>
-
     </main>
 
-    <style>
-        /* CSS Animations for smooth UI */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-        
-        /* Toast notification animation class */
-        #toast-msg.show {
-            opacity: 1;
-            transform: translate(-50%, 0);
-        }
-    </style>
+    <div id="toast-container"></div>
 
     <script>
-        // --- 0. Main Navigation Logic (NEW) ---
-        function switchMainView(viewId, element) {
-            // Hide all main views
-            document.querySelectorAll('.main-view').forEach(el => el.classList.add('hidden'));
-            
-            // Show selected view
-            const targetView = document.getElementById('view-' + viewId);
-            if(targetView) {
-                targetView.classList.remove('hidden');
+        // --- 1. MOCK DATABASE (Enhanced with media & arrays) ---
+        const MOCK_DATA = {
+            patients: [
+                { id: 'PAT-001', nameAr: 'ياسين أحمد محمود', nameEn: 'Yassin Ahmed', dob: '2023-05-15', sex: 'Male', gPhone: '01012345678', weight: 14.5 }
+            ],
+            encounters: [],
+            media: [], // Stores investigations/x-rays
+            vaccineRecords: [], // Stores given vaccines
+            settings: { lang: 'ar' }
+        };
+
+        const VACCINE_SCHEDULE = [
+            { age: 'At Birth', items: ['BCG', 'Hepatitis B', 'OPV (Zero)'] },
+            { age: '2 Months', items: ['Pentavalent 1', 'OPV 1', 'Rotavirus 1', 'PCV 1'] },
+            { age: '4 Months', items: ['Pentavalent 2', 'OPV 2', 'Rotavirus 2', 'PCV 2'] },
+            { age: '6 Months', items: ['Pentavalent 3', 'OPV 3', 'Rotavirus 3', 'PCV 3'] },
+            { age: '9 Months', items: ['OPV 4', 'Vitamin A (100k IU)'] },
+            { age: '12 Months', items: ['MMR 1', 'OPV 5'] },
+            { age: '18 Months', items: ['DPT Booster', 'OPV Booster', 'MMR 2', 'Vitamin A (200k IU)'] }
+        ];
+
+        const DB = {
+            init: () => { if (!localStorage.getItem('neo_kids_db')) localStorage.setItem('neo_kids_db', JSON.stringify(MOCK_DATA)); },
+            get: (collection) => JSON.parse(localStorage.getItem('neo_kids_db'))[collection] || [],
+            save: (collection, item) => {
+                const data = JSON.parse(localStorage.getItem('neo_kids_db'));
+                if (!data[collection]) data[collection] = [];
+                data[collection].unshift(item);
+                localStorage.setItem('neo_kids_db', JSON.stringify(data));
+                return item;
+            },
+            updateRaw: (updater) => {
+                const data = JSON.parse(localStorage.getItem('neo_kids_db'));
+                updater(data);
+                localStorage.setItem('neo_kids_db', JSON.stringify(data));
             }
+        };
 
-            // Update Sidebar styling to reflect active page
-            if (element) {
-                document.querySelectorAll('.sidebar-link').forEach(el => {
-                    el.classList.remove('bg-primary/20', 'border-primary/30', 'border', 'text-white');
-                    el.classList.add('text-slate-300', 'border-transparent');
-                });
-                element.classList.remove('text-slate-300', 'border-transparent');
-                element.classList.add('bg-primary/20', 'border-primary/30', 'border', 'text-white');
+        const State = { currentLang: 'ar', activeView: 'dashboard', activePatient: null, currentRx: [] };
+
+        const Utils = {
+            generateId: (prefix) => `${prefix}-${Math.floor(1000 + Math.random() * 9000)}`,
+            formatDate: (ds) => ds ? new Date(ds).toLocaleDateString(State.currentLang === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '--',
+            calculateAge: (dob) => {
+                if (!dob) return '';
+                const bd = new Date(dob), today = new Date();
+                let y = today.getFullYear() - bd.getFullYear(), m = today.getMonth() - bd.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) { y--; m += 12; }
+                return y === 0 ? `${m} months` : `${y} yrs, ${m} mo`;
+            },
+            showToast: (msg, type = 'success') => {
+                const c = document.getElementById('toast-container'), t = document.createElement('div');
+                t.className = `toast ${type}`;
+                t.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check text-neo-success' : 'fa-circle-exclamation text-neo-danger'} text-xl"></i><span class="font-semibold text-sm">${msg}</span>`;
+                c.appendChild(t);
+                setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; setTimeout(() => t.remove(), 300); }, 3000);
             }
-        }
+        };
 
-        // --- 0.5. Toast Notification System (NEW) ---
-        let toastTimeout;
-        function showToast(message) {
-            const toast = document.getElementById('toast-msg');
-            document.getElementById('toast-text').innerText = message;
-            
-            // Show toast
-            toast.classList.add('show');
-            
-            // Auto hide after 3 seconds, clear previous timeout if clicking rapidly
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        // --- 1. Tab Switching Logic ---
-        function switchTab(tabId) {
-            // Hide all contents
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            // Show selected content
-            document.getElementById('content-' + tabId).classList.remove('hidden');
-            
-            // Reset tab styling
-            document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.remove('text-primary', 'border-primary');
-                el.classList.add('text-slate-500', 'border-transparent');
-            });
-            // Highlight active tab
-            const activeBtn = document.getElementById('tab-' + tabId);
-            activeBtn.classList.remove('text-slate-500', 'border-transparent');
-            activeBtn.classList.add('text-primary', 'border-primary');
-
-            // Render chart if growth tab is clicked
-            if (tabId === 'growth' && !window.chartRendered) {
-                renderGrowthChart();
-                window.chartRendered = true;
-            }
-        }
-
-        // --- 2. Dose Calculator Logic ---
-        function calculateDose() {
-            const weight = 18.2; // Currently hardcoded based on patient profile
-            const select = document.getElementById('med-select');
-            const selectedOption = select.options[select.selectedIndex];
-            
-            const dosePerKg = parseFloat(selectedOption.value); // e.g., 15 mg/kg
-            const concentration = parseFloat(selectedOption.getAttribute('data-conc')); // e.g., 250 mg
-            const volume = parseFloat(selectedOption.getAttribute('data-vol')); // e.g., 5 ml
-
-            // Formula: (Weight * Dose/Kg * Volume) / Concentration
-            const totalMg = weight * dosePerKg;
-            const mlRequired = (totalMg * volume) / concentration;
-
-            const resultDiv = document.getElementById('dose-result');
-            resultDiv.innerHTML = `الجرعة المطلوبة: <span class="text-2xl ml-1 text-dark">${mlRequired.toFixed(1)} ml</span> <br> <span class="text-xs text-slate-500 font-semibold mt-1 block">(${totalMg.toFixed(0)} mg per dose)</span>`;
-            resultDiv.classList.remove('hidden');
-        }
-
-        // --- 3. Chart.js Implementation (Simulating WHO Growth Chart) ---
-        function renderGrowthChart() {
-            const ctx = document.getElementById('growthChart').getContext('2d');
-            
-            // Dummy data to simulate WHO curves (Age in months vs Weight in Kg)
-            const labels = [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60]; // Months up to 5 years
-            
-            // Simulating Percentile curves
-            const p3 = [3.3, 7.1, 8.9, 10.1, 11.3, 12.4, 13.3, 14.3, 15.3, 16.2, 17.0];
-            const p50 = [3.3, 7.9, 9.6, 10.9, 12.2, 13.3, 14.3, 15.3, 16.3, 17.3, 18.3];
-            const p97 = [3.3, 8.8, 10.8, 12.3, 13.6, 15.0, 16.2, 17.5, 18.8, 20.2, 21.6];
-            
-            // Actual Patient Data
-            // Points: Birth(0): 2.4 (preterm dip), 1 year(12): 9.0, 2 years(24): 11.5, 3.5 yrs(42): 16.4, ~4 yrs(50): 18.2
-            const patientData = [2.4, null, 9.0, null, 11.5, null, null, 16.4, null, 18.2, null];
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Patient Data (Ahmed)',
-                            data: patientData,
-                            borderColor: '#0f766e', // Deep Teal
-                            backgroundColor: '#0f766e',
-                            borderWidth: 3,
-                            pointRadius: 6,
-                            pointBackgroundColor: '#14b8a6', // Accent Teal
-                            tension: 0.3,
-                            spanGaps: true
-                        },
-                        {
-                            label: '97th Percentile',
-                            data: p97,
-                            borderColor: 'rgba(239, 68, 68, 0.4)', // Red light
-                            borderWidth: 1,
-                            pointRadius: 0,
-                            tension: 0.4
-                        },
-                        {
-                            label: '50th Percentile',
-                            data: p50,
-                            borderColor: 'rgba(34, 197, 94, 0.5)', // Green light
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            pointRadius: 0,
-                            tension: 0.4
-                        },
-                        {
-                            label: '3rd Percentile',
-                            data: p3,
-                            borderColor: 'rgba(239, 68, 68, 0.4)', // Red light
-                            borderWidth: 1,
-                            pointRadius: 0,
-                            tension: 0.4
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { title: { display: true, text: 'Age (Months)' } },
-                        y: { title: { display: true, text: 'Weight (kg)' } }
-                    },
-                    plugins: {
-                        tooltip: { mode: 'index', intersect: false }
-                    }
+        const App = {
+            init: () => {
+                DB.init();
+                const dbData = JSON.parse(localStorage.getItem('neo_kids_db'));
+                State.currentLang = dbData.settings.lang || 'ar';
+                App.applyLanguage(); App.renderSidebar();
+                document.getElementById('current-date-display').innerText = new Date().toLocaleDateString(State.currentLang === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                App.navigate('dashboard');
+            },
+            navigate: (viewId, param = null) => {
+                document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+                document.getElementById(`view-${viewId}`).classList.add('active');
+                State.activeView = viewId; App.renderSidebar();
+                if (viewId === 'dashboard') {
+                    document.getElementById('stat-patients').innerText = DB.get('patients').length;
                 }
-            });
-        }
+                if (viewId === 'patients') PatientsModule.renderList();
+                if (viewId === 'patient-profile' && param) PatientsModule.loadProfile(param);
+                if (viewId === 'consultation') ClinicalModule.initConsultation();
+            },
+            toggleLang: () => {
+                State.currentLang = State.currentLang === 'ar' ? 'en' : 'ar';
+                DB.updateRaw(data => data.settings.lang = State.currentLang);
+                App.applyLanguage(); App.renderSidebar();
+                if(State.activeView === 'patients') PatientsModule.renderList();
+            },
+            applyLanguage: () => {
+                document.documentElement.lang = State.currentLang;
+                document.documentElement.dir = State.currentLang === 'ar' ? 'rtl' : 'ltr';
+                document.getElementById('lang-toggle').innerText = State.currentLang === 'ar' ? 'EN' : 'عربي';
+            },
+            renderSidebar: () => {
+                const items = [{id:'dashboard', icon:'fa-chart-pie', label:'Dashboard'}, {id:'patients', icon:'fa-children', label:'Patients'}];
+                const sb = document.getElementById('sidebar-menu'); sb.innerHTML = '';
+                items.forEach(i => {
+                    const a = document.createElement('a'); a.href = '#';
+                    const active = State.activeView === i.id || (State.activeView.includes('patient') && i.id === 'patients');
+                    a.className = `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all ${active ? 'bg-white text-neo-green font-bold shadow-sm' : 'text-white hover:bg-neo-green-light/40'}`;
+                    a.onclick = (e) => { e.preventDefault(); App.navigate(i.id); };
+                    a.innerHTML = `<i class="fa-solid ${i.icon} w-5 text-center ${active ? 'text-neo-green' : 'text-neo-beige'}"></i> <span>${i.label}</span>`;
+                    sb.appendChild(a);
+                });
+            }
+        };
+
+        const PatientsModule = {
+            renderList: () => {
+                const tbody = document.getElementById('patients-list-body'); tbody.innerHTML = '';
+                DB.get('patients').forEach(p => {
+                    const tr = document.createElement('tr'); tr.className = 'hover:bg-gray-50 transition cursor-pointer';
+                    tr.onclick = () => App.navigate('patient-profile', p.id);
+                    tr.innerHTML = `<td class="px-6 py-4 font-mono text-xs text-gray-500">${p.id}</td><td class="px-6 py-4 font-bold text-neo-green">${p.nameAr}</td><td class="px-6 py-4">${Utils.calculateAge(p.dob)}</td><td class="px-6 py-4">${p.gPhone}</td><td class="px-6 py-4 text-center"><button class="text-neo-green"><i class="fa-solid fa-folder-open"></i></button></td>`;
+                    tbody.appendChild(tr);
+                });
+            },
+            savePatient: (e) => {
+                e.preventDefault();
+                const p = { id: Utils.generateId('PAT'), nameAr: document.getElementById('p-name-ar').value, dob: document.getElementById('p-dob').value, sex: document.getElementById('p-sex').value, gPhone: document.getElementById('g-phone').value };
+                DB.save('patients', p); document.getElementById('add-patient-form').reset(); Utils.showToast('Patient Registered');
+                App.navigate('patient-profile', p.id);
+            },
+            loadProfile: (id) => {
+                const p = DB.get('patients').find(x => x.id === id); if(!p) return;
+                State.activePatient = p;
+                document.getElementById('profile-name').innerText = p.nameAr;
+                document.getElementById('profile-id').innerText = p.id;
+                document.getElementById('profile-age').innerText = Utils.calculateAge(p.dob);
+                document.getElementById('profile-weight').innerText = p.weight ? `${p.weight} kg` : '-- kg';
+                document.getElementById('profile-avatar').innerHTML = p.sex === 'Male' ? '<i class="fa-solid fa-child"></i>' : '<i class="fa-solid fa-child-dress"></i>';
+                
+                // Reset to first tab
+                document.querySelector('.tab-btn').click();
+                
+                // Load Timeline
+                const timeline = document.getElementById('profile-timeline');
+                const encs = DB.get('encounters').filter(e => e.patientId === id);
+                timeline.innerHTML = encs.length ? encs.map(e => `
+                    <div class="relative pl-6 rtl:pr-6 rtl:pl-0 border-l-2 rtl:border-l-0 rtl:border-r-2 border-neo-beige pb-4 mb-4">
+                        <div class="absolute w-4 h-4 bg-neo-green rounded-full -left-[9px] rtl:-right-[9px] rtl:left-auto top-0 border-4 border-white"></div>
+                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 shadow-sm">
+                            <div class="flex justify-between items-start mb-2"><div class="font-bold text-neo-green"><i class="fa-solid fa-stethoscope"></i> Consultation</div><div class="text-xs text-gray-500">${Utils.formatDate(e.date)}</div></div>
+                            <div class="text-sm"><span class="font-semibold">Diag:</span> ${e.diagnosis}</div>
+                            ${e.rx.length ? `<div class="text-sm mt-2 text-gray-600 border-t pt-2"><i class="fa-solid fa-pills text-neo-beige"></i> ${e.rx.map(r=>r.drug).join(', ')}</div>` : ''}
+                        </div>
+                    </div>`).join('') : '<p class="text-gray-400 text-center py-8">No records found.</p>';
+                
+                ClinicalModule.renderMedia();
+                ClinicalModule.renderVaccines();
+            },
+            switchTab: (tabId, btn) => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+            }
+        };
+
+        const ClinicalModule = {
+            initConsultation: () => {
+                if(!State.activePatient) { App.navigate('patients'); return; }
+                document.getElementById('consult-patient-name').innerText = State.activePatient.nameAr;
+                document.getElementById('calc-weight').value = State.activePatient.weight || '';
+                ['consult-cc', 'consult-diag', 'consult-plan', 'rx-drug', 'rx-dose'].forEach(id => document.getElementById(id).value = '');
+                State.currentRx = []; ClinicalModule.renderRxList();
+            },
+            addRxItem: () => {
+                const drug = document.getElementById('rx-drug').value, dose = document.getElementById('rx-dose').value;
+                if(!drug) return;
+                State.currentRx.push({ drug, dose });
+                document.getElementById('rx-drug').value = ''; document.getElementById('rx-dose').value = '';
+                ClinicalModule.renderRxList();
+            },
+            renderRxList: () => {
+                const list = document.getElementById('rx-list');
+                if(!State.currentRx.length) { list.innerHTML = '<li class="text-gray-400 text-center py-4 italic">No medications added.</li>'; return; }
+                list.innerHTML = State.currentRx.map((item, idx) => `
+                    <li class="flex justify-between items-center bg-white p-2 border rounded shadow-sm">
+                        <div><div class="font-semibold text-neo-green text-sm">${item.drug}</div><div class="text-xs text-gray-500">${item.dose}</div></div>
+                        <button onclick="ClinicalModule.removeRx(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash-can"></i></button>
+                    </li>
+                `).join('');
+            },
+            removeRx: (idx) => { State.currentRx.splice(idx, 1); ClinicalModule.renderRxList(); },
+            calculateDose: () => {
+                const wt = parseFloat(document.getElementById('calc-weight').value), dKg = parseFloat(document.getElementById('calc-dose').value);
+                const frq = parseFloat(document.getElementById('calc-freq').value), cMg = parseFloat(document.getElementById('calc-conc-mg').value), cMl = parseFloat(document.getElementById('calc-conc-ml').value);
+                if(!wt || !dKg) { Utils.showToast('Enter Weight and Dose', 'error'); return; }
+                const perDose = (wt * dKg) / frq;
+                let vol = (cMg && cMl) ? `${((perDose * cMl) / cMg).toFixed(1)} ml` : 'N/A';
+                document.getElementById('calc-result-vol').innerText = vol;
+                document.getElementById('calc-result-mg').innerText = `${perDose.toFixed(1)} mg / dose`;
+                document.getElementById('calc-result').classList.remove('hidden');
+            },
+            saveConsultation: () => {
+                const diag = document.getElementById('consult-diag').value;
+                if(!diag) { Utils.showToast('Diagnosis required', 'error'); return; }
+                const enc = {
+                    id: Utils.generateId('ENC'), patientId: State.activePatient.id, date: new Date().toISOString(),
+                    diagnosis: diag, plan: document.getElementById('consult-plan').value, rx: [...State.currentRx]
+                };
+                DB.save('encounters', enc); Utils.showToast('Saved Successfully');
+                App.navigate('patient-profile', State.activePatient.id);
+            },
+            openTriage: () => {
+                const wt = prompt("Enter Patient Weight (kg):");
+                if(wt && !isNaN(wt)) {
+                    State.activePatient.weight = parseFloat(wt);
+                    DB.updateRaw(d => { const p = d.patients.find(x=>x.id===State.activePatient.id); if(p) p.weight = parseFloat(wt); });
+                    document.getElementById('profile-weight').innerText = `${wt} kg`; Utils.showToast('Vitals updated');
+                }
+            },
+            // --- NEW: MEDIA HANDLING ---
+            handleMediaUpload: (e) => {
+                const file = e.target.files[0]; if(!file) return;
+                const isImg = file.type.startsWith('image/');
+                // Simulate saving metadata to avoid LocalStorage limits with large files
+                const mediaRec = {
+                    id: Utils.generateId('DOC'), patientId: State.activePatient.id,
+                    name: file.name, date: new Date().toISOString(), type: isImg ? 'image' : 'pdf'
+                };
+                DB.save('media', mediaRec);
+                Utils.showToast('Document Uploaded');
+                ClinicalModule.renderMedia();
+            },
+            renderMedia: () => {
+                const grid = document.getElementById('media-grid');
+                const docs = DB.get('media').filter(m => m.patientId === State.activePatient.id);
+                if(!docs.length) { grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-8">No documents uploaded.</div>'; return; }
+                grid.innerHTML = docs.map(d => `
+                    <div class="border rounded-xl p-3 flex flex-col items-center justify-center bg-gray-50 hover:shadow-md transition text-center gap-2">
+                        <i class="fa-solid ${d.type === 'image' ? 'fa-image text-blue-400' : 'fa-file-pdf text-red-400'} text-3xl"></i>
+                        <div class="text-xs font-semibold truncate w-full" title="${d.name}">${d.name}</div>
+                        <div class="text-[10px] text-gray-500">${Utils.formatDate(d.date)}</div>
+                    </div>
+                `).join('');
+            },
+            // --- NEW: VACCINATION HANDLING ---
+            renderVaccines: () => {
+                const tbody = document.getElementById('vaccines-table-body');
+                const recs = DB.get('vaccineRecords').filter(v => v.patientId === State.activePatient.id);
+                tbody.innerHTML = VACCINE_SCHEDULE.map((sch, i) => {
+                    return `
+                        <tr>
+                            <td class="px-4 py-3 font-semibold text-neo-green align-top">${sch.age}</td>
+                            <td class="px-4 py-3">
+                                <div class="flex flex-col gap-2">
+                                    ${sch.items.map(vac => {
+                                        const isGiven = recs.some(r => r.vaccine === vac);
+                                        return `
+                                        <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                            <input type="checkbox" class="accent-neo-green w-4 h-4" ${isGiven ? 'checked disabled' : ''} onchange="ClinicalModule.markVaccine('${vac}')">
+                                            <span class="${isGiven ? 'text-gray-400 line-through' : 'text-gray-700'}">${vac}</span>
+                                            ${isGiven ? '<i class="fa-solid fa-check-circle text-neo-success text-xs"></i>' : ''}
+                                        </label>`
+                                    }).join('')}
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-center align-top">
+                                ${sch.items.every(vac => recs.some(r => r.vaccine === vac)) 
+                                    ? '<span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-bold">Completed</span>' 
+                                    : '<span class="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded">Pending</span>'}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            },
+            markVaccine: (vacName) => {
+                if(!confirm(`Mark "${vacName}" as given today?`)) { ClinicalModule.renderVaccines(); return; }
+                DB.save('vaccineRecords', { patientId: State.activePatient.id, vaccine: vacName, date: new Date().toISOString() });
+                Utils.showToast('Vaccine documented');
+                ClinicalModule.renderVaccines();
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', App.init);
     </script>
 </body>
 </html>
-```
